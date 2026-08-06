@@ -1,0 +1,105 @@
+package com.testplatform.test_automation_platform.controller;
+
+import com.testplatform.test_automation_platform.entity.ConfigurationTest;
+import com.testplatform.test_automation_platform.entity.ExecutionTest;
+import com.testplatform.test_automation_platform.entity.Projet;
+import com.testplatform.test_automation_platform.enums.StatutExecution;
+import com.testplatform.test_automation_platform.service.ConfigurationTestService;
+import com.testplatform.test_automation_platform.service.ExecutionTestService;
+import com.testplatform.test_automation_platform.service.ProjetService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/executions-tests")
+public class ExecutionTestController {
+
+    private final ExecutionTestService executionTestService;
+    private final ProjetService projetService;
+    private final ConfigurationTestService configurationTestService;
+
+    public ExecutionTestController(
+            ExecutionTestService executionTestService,
+            ProjetService projetService,
+            ConfigurationTestService configurationTestService) {
+
+        this.executionTestService = executionTestService;
+        this.projetService = projetService;
+        this.configurationTestService = configurationTestService;
+    }
+
+    @PostMapping
+    public ResponseEntity<ExecutionTest> creerExecution(
+            @RequestParam Long projetId,
+            @RequestParam Long configurationTestId) {
+
+        Projet projet = projetService.obtenirProjetParId(projetId);
+
+        ConfigurationTest configuration =
+                configurationTestService.obtenirConfigurationParId(
+                        configurationTestId
+                );
+
+        return ResponseEntity.ok(
+                executionTestService.creerExecution(
+                        projet,
+                        configuration
+                )
+        );
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ExecutionTest> obtenirExecutionParId(
+            @PathVariable Long id) {
+
+        return ResponseEntity.ok(
+                executionTestService.obtenirExecutionParId(id)
+        );
+    }
+
+    @GetMapping("/projet/{projetId}")
+    public ResponseEntity<List<ExecutionTest>> obtenirExecutionsParProjet(
+            @PathVariable Long projetId) {
+
+        Projet projet = projetService.obtenirProjetParId(projetId);
+
+        return ResponseEntity.ok(
+                executionTestService.obtenirExecutionsParProjet(projet)
+        );
+    }
+
+    @PutMapping("/{id}/demarrer")
+    public ResponseEntity<ExecutionTest> demarrerExecution(
+            @PathVariable Long id) {
+
+        return ResponseEntity.ok(
+                executionTestService.demarrerExecution(id)
+        );
+    }
+
+    @PutMapping("/{id}/terminer")
+    public ResponseEntity<ExecutionTest> terminerExecution(
+            @PathVariable Long id,
+            @RequestParam StatutExecution statut,
+            @RequestParam(required = false) String message) {
+
+        return ResponseEntity.ok(
+                executionTestService.terminerExecution(
+                        id,
+                        statut,
+                        message
+                )
+        );
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> supprimerExecution(
+            @PathVariable Long id) {
+
+        executionTestService.supprimerExecution(id);
+
+        return ResponseEntity.noContent().build();
+    }
+}
