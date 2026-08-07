@@ -20,10 +20,14 @@ public class RapportController {
 
     @PostMapping
     public ResponseEntity<Rapport> enregistrerRapport(
-            @RequestBody Rapport rapport) {
+            @RequestBody Rapport rapport,
+            @RequestParam Long executionId) {
 
         return ResponseEntity.ok(
-                rapportService.enregistrerRapport(rapport)
+                rapportService.enregistrerRapport(
+                        rapport,
+                        executionId
+                )
         );
     }
 

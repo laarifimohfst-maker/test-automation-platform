@@ -1,13 +1,16 @@
 package com.testplatform.test_automation_platform.controller;
 
+import com.testplatform.test_automation_platform.service.FileStorageService;
 import com.testplatform.test_automation_platform.entity.Projet;
 import com.testplatform.test_automation_platform.entity.Utilisateur;
 import com.testplatform.test_automation_platform.service.ProjetService;
 import com.testplatform.test_automation_platform.service.UtilisateurService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/api/projets")
@@ -15,13 +18,16 @@ public class ProjetController {
 
     private final ProjetService projetService;
     private final UtilisateurService utilisateurService;
+    private final FileStorageService fileStorageService;
 
     public ProjetController(
             ProjetService projetService,
-            UtilisateurService utilisateurService) {
+            UtilisateurService utilisateurService,
+            FileStorageService fileStorageService) {
 
         this.projetService = projetService;
         this.utilisateurService = utilisateurService;
+        this.fileStorageService = fileStorageService;
     }
 
     @PostMapping
@@ -84,4 +90,66 @@ public class ProjetController {
 
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/import")
+    public ResponseEntity<?> importerProjet(
+            @RequestParam("fichier") MultipartFile fichier,
+            @RequestParam Long utilisateurId) {
+
+        try {
+
+            Utilisateur utilisateur = utilisateurService
+                    .obtenirUtilisateurParId(utilisateurId)
+                    .orElseThrow(() ->
+                            new IllegalArgumentException("Utilisateur introuvable."));
+
+            Projet projet = projetService.importerProjetZip(
+                    fichier,
+                    utilisateur
+            );
+
+            return ResponseEntity.ok(projet);
+
+        } catch (IllegalArgumentException e) {
+
+            return ResponseEntity.badRequest().body(e.getMessage());
+
+        } catch (IOException e) {
+
+            return ResponseEntity.internalServerError()
+                    .body("Erreur lors de l'importation du projet.");
+        }
+    }
+
+    @PostMapping("/import/github")
+    public ResponseEntity<?> importerDepuisGithub(
+            @RequestParam String url,
+            @RequestParam Long utilisateurId) {
+
+        try {
+
+            Utilisateur utilisateur = utilisateurService
+                    .obtenirUtilisateurParId(utilisateurId)
+                    .orElseThrow(() ->
+                            new IllegalArgumentException(
+                                    "Utilisateur introuvable."));
+
+            Projet projet = projetService.importerProjetGithub(
+                    url,
+                    utilisateur);
+
+            return ResponseEntity.ok(projet);
+
+        } catch (IllegalArgumentException e) {
+
+            return ResponseEntity.badRequest()
+                    .body(e.getMessage());
+
+        } catch (IOException | InterruptedException e) {
+
+            return ResponseEntity.internalServerError()
+                    .body("Erreur lors du clonage du dépôt GitHub.");
+        }
+    }
+
 }
