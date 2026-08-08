@@ -6,18 +6,23 @@ import com.testplatform.test_automation_platform.repository.ConfigurationTestRep
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.time.LocalDateTime;
 
 @Service
 public class ConfigurationTestService {
 
     private final ConfigurationTestRepository configurationTestRepository;
+    private final ProjetService projetService;
 
     public ConfigurationTestService(
-            ConfigurationTestRepository configurationTestRepository) {
+            ConfigurationTestRepository configurationTestRepository,
+            ProjetService projetService) {
         this.configurationTestRepository = configurationTestRepository;
+        this.projetService = projetService;
     }
 
     public ConfigurationTest creerConfiguration(ConfigurationTest configurationTest) {
+        configurationTest.setDateConfiguration(LocalDateTime.now());
         return configurationTestRepository.save(configurationTest);
     }
 
@@ -58,5 +63,33 @@ public class ConfigurationTestService {
         }
 
         configurationTestRepository.deleteById(id);
+    }
+
+    public ConfigurationTest configurerTests(Long projetId, ConfigurationTest configurationDemandee) {
+
+        boolean unitaires = configurationDemandee.isTestsUnitaires();
+        boolean integration = configurationDemandee.isTestsIntegration();
+        boolean api = configurationDemandee.isTestsApi();
+
+        if (!unitaires && !integration && !api) {
+            throw new IllegalArgumentException(
+                    "Vous devez sélectionner au moins un type de test.");
+        }
+
+        Projet projet = projetService.obtenirProjetParId(projetId);
+
+        return configurationTestRepository
+                .findByProjetAndTestsUnitairesAndTestsIntegrationAndTestsApi(
+                        projet, unitaires, integration, api)
+                .orElseGet(() -> {
+                    ConfigurationTest nouvelle = ConfigurationTest.builder()
+                            .projet(projet)
+                            .testsUnitaires(unitaires)
+                            .testsIntegration(integration)
+                            .testsApi(api)
+                            .dateConfiguration(LocalDateTime.now())
+                            .build();
+                    return configurationTestRepository.save(nouvelle);
+                });
     }
 }

@@ -14,10 +14,14 @@ import java.util.List;
 public class ExecutionTestService {
 
     private final ExecutionTestRepository executionTestRepository;
+    private final MavenExecutionService mavenExecutionService;
 
     public ExecutionTestService(
-            ExecutionTestRepository executionTestRepository) {
+            ExecutionTestRepository executionTestRepository,
+            MavenExecutionService mavenExecutionService) {
+
         this.executionTestRepository = executionTestRepository;
+        this.mavenExecutionService = mavenExecutionService;
     }
 
     public ExecutionTest creerExecution(
@@ -32,6 +36,15 @@ public class ExecutionTestService {
         execution.setDateDebut(LocalDateTime.now());
 
         return executionTestRepository.save(execution);
+    }
+
+    public ExecutionTest lancerTest(
+            Projet projet,
+            ConfigurationTest configurationTest) throws Exception {
+
+        ExecutionTest execution = creerExecution(projet, configurationTest);
+
+        return executerTests(execution.getId());
     }
 
     public ExecutionTest obtenirExecutionParId(Long id) {
@@ -80,4 +93,58 @@ public class ExecutionTestService {
 
         executionTestRepository.deleteById(id);
     }
+
+    public ExecutionTest executerTests(Long id)
+            throws Exception {
+
+        ExecutionTest execution =
+                obtenirExecutionParId(id);
+
+        ConfigurationTest configuration =
+                execution.getConfigurationTest();
+
+        Projet projet =
+                execution.getProjet();
+
+        String cheminProjet =
+                projet.getCheminLocal();
+
+        execution.setStatut(StatutExecution.EN_COURS);
+        execution.setDateDebut(LocalDateTime.now());
+
+        executionTestRepository.save(execution);
+
+        int codeRetour =
+                mavenExecutionService.executerTests(
+                        cheminProjet,
+                        configuration
+                );
+
+        if (codeRetour == 0) {
+
+            execution.setStatut(
+                    StatutExecution.TERMINEE
+            );
+
+            execution.setMessage(
+                    "Les tests ont été exécutés avec succès."
+            );
+
+        } else {
+
+            execution.setStatut(
+                    StatutExecution.ECHOUEE
+            );
+
+            execution.setMessage(
+                    "Les tests ont échoué. Code retour Maven : "
+                            + codeRetour
+            );
+        }
+
+        execution.setDateFin(LocalDateTime.now());
+
+        return executionTestRepository.save(execution);
+    }
+
 }

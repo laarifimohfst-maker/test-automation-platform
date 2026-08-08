@@ -1,6 +1,7 @@
 package com.testplatform.test_automation_platform.entity;
 
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
 import lombok.*;
 
 @Entity
@@ -21,6 +22,8 @@ public class ConfigurationTest {
     private boolean testsIntegration;
 
     private boolean testsApi;
+
+    private LocalDateTime dateConfiguration;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "projet_id", nullable = false)

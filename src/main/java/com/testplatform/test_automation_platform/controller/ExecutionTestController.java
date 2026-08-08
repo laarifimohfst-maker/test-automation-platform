@@ -31,23 +31,30 @@ public class ExecutionTestController {
     }
 
     @PostMapping
-    public ResponseEntity<ExecutionTest> creerExecution(
+    public ResponseEntity<ExecutionTest> lancerTest(
             @RequestParam Long projetId,
             @RequestParam Long configurationTestId) {
 
-        Projet projet = projetService.obtenirProjetParId(projetId);
+        try {
 
-        ConfigurationTest configuration =
-                configurationTestService.obtenirConfigurationParId(
-                        configurationTestId
-                );
+            Projet projet = projetService.obtenirProjetParId(projetId);
 
-        return ResponseEntity.ok(
-                executionTestService.creerExecution(
-                        projet,
-                        configuration
-                )
-        );
+            ConfigurationTest configuration =
+                    configurationTestService.obtenirConfigurationParId(
+                            configurationTestId
+                    );
+
+            return ResponseEntity.ok(
+                    executionTestService.lancerTest(
+                            projet,
+                            configuration
+                    )
+            );
+
+        } catch (Exception e) {
+
+            return ResponseEntity.internalServerError().build();
+        }
     }
 
     @GetMapping("/{id}")
@@ -74,9 +81,16 @@ public class ExecutionTestController {
     public ResponseEntity<ExecutionTest> demarrerExecution(
             @PathVariable Long id) {
 
-        return ResponseEntity.ok(
-                executionTestService.demarrerExecution(id)
-        );
+        try {
+
+            return ResponseEntity.ok(
+                    executionTestService.executerTests(id)
+            );
+
+        } catch (Exception e) {
+
+            return ResponseEntity.internalServerError().build();
+        }
     }
 
     @PutMapping("/{id}/terminer")

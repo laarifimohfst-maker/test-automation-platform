@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/configurations-tests")
 public class ConfigurationTestController {
 
     private final ConfigurationTestService configurationTestService;
@@ -24,7 +23,7 @@ public class ConfigurationTestController {
         this.projetService = projetService;
     }
 
-    @PostMapping
+    @PostMapping("/api/configurations-tests")
     public ResponseEntity<ConfigurationTest> creerConfiguration(
             @RequestBody ConfigurationTest configurationTest) {
 
@@ -33,7 +32,7 @@ public class ConfigurationTestController {
         );
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/api/configurations-tests/{id}")
     public ResponseEntity<ConfigurationTest> obtenirConfigurationParId(
             @PathVariable Long id) {
 
@@ -42,7 +41,7 @@ public class ConfigurationTestController {
         );
     }
 
-    @GetMapping("/projet/{projetId}")
+    @GetMapping("/api/configurations-tests/projet/{projetId}")
     public ResponseEntity<List<ConfigurationTest>> obtenirConfigurationsParProjet(
             @PathVariable Long projetId) {
 
@@ -53,7 +52,7 @@ public class ConfigurationTestController {
         );
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/api/configurations-tests/{id}")
     public ResponseEntity<ConfigurationTest> modifierConfiguration(
             @PathVariable Long id,
             @RequestBody ConfigurationTest configurationTest) {
@@ -66,12 +65,22 @@ public class ConfigurationTestController {
         );
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/api/configurations-tests/{id}")
     public ResponseEntity<Void> supprimerConfiguration(
             @PathVariable Long id) {
 
         configurationTestService.supprimerConfiguration(id);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/api/projets/{projetId}/configuration-test")
+    public ResponseEntity<ConfigurationTest> configurer(
+            @PathVariable Long projetId,
+            @RequestBody ConfigurationTest configurationTest) {
+
+        return ResponseEntity.ok(
+                configurationTestService.configurerTests(projetId, configurationTest)
+        );
     }
 }
