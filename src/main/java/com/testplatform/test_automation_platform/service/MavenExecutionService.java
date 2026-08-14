@@ -2,6 +2,7 @@ package com.testplatform.test_automation_platform.service;
 
 import com.testplatform.test_automation_platform.entity.ConfigurationTest;
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -11,9 +12,16 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class MavenExecutionService {
+
+    @Value("${sonar.host.url}")
+    private String sonarHostUrl;
+
+    @Value("${sonar.login}")
+    private String sonarToken;
 
     public int executerTests(
             String cheminProjet,
@@ -105,6 +113,19 @@ public class MavenExecutionService {
 
         processBuilder.directory(dossierProjet.toFile());
 
+        // Utiliser les certificats approuves par Windows pour Maven Central.
+        Map<String, String> environnement = processBuilder.environment();
+        String mavenOpts = environnement.getOrDefault("MAVEN_OPTS", "");
+        String windowsTrustStore =
+                "-Djavax.net.ssl.trustStoreType=Windows-ROOT";
+
+        if (!mavenOpts.contains("javax.net.ssl.trustStore")) {
+            environnement.put(
+                    "MAVEN_OPTS",
+                    (mavenOpts + " " + windowsTrustStore).trim()
+            );
+        }
+
         processBuilder.redirectErrorStream(true);
 
         Process process = processBuilder.start();
@@ -128,5 +149,29 @@ public class MavenExecutionService {
         );
 
         return codeRetour;
+    }
+
+    public int executerAnalyseQualite(
+            String cheminProjet,
+            String projectKey)
+            throws IOException, InterruptedException {
+
+        System.out.println("=== Analyse de qualité SonarQube ===");
+
+        return executerCommande(
+                cheminProjet,
+                "mvn",
+                "-DskipTests",
+                "compile",
+                "org.sonarsource.scanner.maven:sonar-maven-plugin:5.6.0.6792:sonar",
+                "-Dsonar.projectKey=" + projectKey,
+                "-Dsonar.host.url=" + sonarHostUrl,
+                "-Dsonar.login=" + sonarToken,
+                // Les rapports de tests generiques sont optionnels. Certains
+                // projets declarent un chemin vers un rapport qui n'existe pas,
+                // ce qui fait echouer toute l'analyse SonarQube. La plateforme
+                // analyse donc le code sans imposer ce rapport externe.
+                "-Dsonar.testExecutionReportPaths="
+        );
     }
 }

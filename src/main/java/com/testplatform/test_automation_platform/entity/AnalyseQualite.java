@@ -19,8 +19,6 @@ public class AnalyseQualite {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Double score;
-
     private Integer bugs;
 
     private Integer vulnerabilites;

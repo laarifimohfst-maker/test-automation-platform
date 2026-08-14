@@ -124,19 +124,37 @@ public class ExecutionTestService {
                 );
 
         if (codeRetour == 0) {
-            execution.setStatut(StatutExecution.TERMINEE);
-            execution.setMessage("Les tests ont été exécutés avec succès.");
+
+            execution.setStatut(
+                    StatutExecution.TERMINEE
+            );
+
+            execution.setMessage(
+                    "Les tests ont été exécutés avec succès."
+            );
+
         } else {
-            execution.setStatut(StatutExecution.ECHOUEE);
-            execution.setMessage("Les tests ont échoué. Code retour Maven : " + codeRetour);
+
+            execution.setStatut(
+                    StatutExecution.ECHOUEE
+            );
+
+            execution.setMessage(
+                    "Les tests ont échoué. Code retour Maven : "
+                            + codeRetour
+            );
         }
 
         execution.setDateFin(LocalDateTime.now());
 
         executionTestRepository.save(execution);
 
-        resultatTestService.lireEtEnregistrerResultats(cheminProjet, execution);
+        resultatTestService.lireEtEnregistrerResultats(
+                cheminProjet,
+                execution
+        );
 
         return execution;
     }
+
 }

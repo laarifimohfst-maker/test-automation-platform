@@ -14,14 +14,14 @@ import java.util.List;
 @RequestMapping("/api/executions-analyse-qualite")
 public class ExecutionAnalyseQualiteController {
 
-    private final ExecutionAnalyseQualiteService executionService;
+    private final ExecutionAnalyseQualiteService executionAnalyseQualiteService;
     private final ProjetService projetService;
 
     public ExecutionAnalyseQualiteController(
-            ExecutionAnalyseQualiteService executionService,
+            ExecutionAnalyseQualiteService executionAnalyseQualiteService,
             ProjetService projetService) {
 
-        this.executionService = executionService;
+        this.executionAnalyseQualiteService = executionAnalyseQualiteService;
         this.projetService = projetService;
     }
 
@@ -32,7 +32,7 @@ public class ExecutionAnalyseQualiteController {
         Projet projet = projetService.obtenirProjetParId(projetId);
 
         return ResponseEntity.ok(
-                executionService.creerExecution(projet)
+                executionAnalyseQualiteService.creerExecution(projet)
         );
     }
 
@@ -41,7 +41,7 @@ public class ExecutionAnalyseQualiteController {
             @PathVariable Long id) {
 
         return ResponseEntity.ok(
-                executionService.obtenirExecutionParId(id)
+                executionAnalyseQualiteService.obtenirExecutionParId(id)
         );
     }
 
@@ -53,7 +53,7 @@ public class ExecutionAnalyseQualiteController {
         Projet projet = projetService.obtenirProjetParId(projetId);
 
         return ResponseEntity.ok(
-                executionService.obtenirExecutionsParProjet(projet)
+                executionAnalyseQualiteService.obtenirExecutionsParProjet(projet)
         );
     }
 
@@ -62,7 +62,7 @@ public class ExecutionAnalyseQualiteController {
             @PathVariable Long id) {
 
         return ResponseEntity.ok(
-                executionService.demarrerExecution(id)
+                executionAnalyseQualiteService.demarrerExecution(id)
         );
     }
 
@@ -73,7 +73,7 @@ public class ExecutionAnalyseQualiteController {
             @RequestParam(required = false) String message) {
 
         return ResponseEntity.ok(
-                executionService.terminerExecution(
+                executionAnalyseQualiteService.terminerExecution(
                         id,
                         statut,
                         message
@@ -85,8 +85,19 @@ public class ExecutionAnalyseQualiteController {
     public ResponseEntity<Void> supprimerExecution(
             @PathVariable Long id) {
 
-        executionService.supprimerExecution(id);
+        executionAnalyseQualiteService.supprimerExecution(id);
 
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/{id}/executer")
+    public ResponseEntity<ExecutionAnalyseQualite> executerAnalyse(
+            @PathVariable Long id) {
+
+        return ResponseEntity.ok(
+                executionAnalyseQualiteService.executerAnalyse(id)
+        );
+    }
+
+
 }

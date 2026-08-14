@@ -1,4 +1,4 @@
-package com.testplatform.test_automation_platform.config;
+package com.testplatform.test_automation_platform.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

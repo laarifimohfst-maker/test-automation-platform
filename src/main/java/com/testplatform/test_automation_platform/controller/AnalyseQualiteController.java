@@ -10,16 +10,15 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/analyses-qualite")
 public class AnalyseQualiteController {
-
-    private final AnalyseQualiteService analyseQualiteService;
     private final ExecutionAnalyseQualiteService executionService;
+    private final AnalyseQualiteService analyseQualiteService;
 
     public AnalyseQualiteController(
-            AnalyseQualiteService analyseQualiteService,
-            ExecutionAnalyseQualiteService executionService) {
+            ExecutionAnalyseQualiteService executionService,
+            AnalyseQualiteService analyseQualiteService) {
 
-        this.analyseQualiteService = analyseQualiteService;
         this.executionService = executionService;
+        this.analyseQualiteService = analyseQualiteService;
     }
 
     @PostMapping

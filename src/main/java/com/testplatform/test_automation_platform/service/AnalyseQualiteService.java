@@ -2,8 +2,20 @@ package com.testplatform.test_automation_platform.service;
 
 import com.testplatform.test_automation_platform.entity.AnalyseQualite;
 import com.testplatform.test_automation_platform.entity.ExecutionAnalyseQualite;
+import com.testplatform.test_automation_platform.enums.StatutQualityGate;
 import com.testplatform.test_automation_platform.repository.AnalyseQualiteRepository;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+import java.time.LocalDateTime;
+import java.util.Base64;
 
 @Service
 public class AnalyseQualiteService {
@@ -19,6 +31,31 @@ public class AnalyseQualiteService {
             AnalyseQualite analyseQualite) {
 
         return analyseQualiteRepository.save(analyseQualite);
+    }
+
+    public AnalyseQualite enregistrerResultatsSonar(
+            ExecutionAnalyseQualite execution,
+            SonarQubeService.MetriquesSonar metriques,
+            String statutQualityGate) {
+
+        AnalyseQualite analyse = analyseQualiteRepository
+                .findByExecutionAnalyseQualite(execution)
+                .orElseGet(AnalyseQualite::new);
+
+        analyse.setBugs(metriques.getBugs());
+        analyse.setVulnerabilites(metriques.getVulnerabilites());
+        analyse.setCodeSmells(metriques.getCodeSmells());
+        analyse.setDuplication(metriques.getDuplication());
+        analyse.setCoverage(metriques.getCoverage());
+        analyse.setQualityGateStatus(
+                "OK".equals(statutQualityGate)
+                        ? StatutQualityGate.REUSSI
+                        : StatutQualityGate.ECHOUE
+        );
+        analyse.setDateAnalyse(LocalDateTime.now());
+        analyse.setExecutionAnalyseQualite(execution);
+
+        return analyseQualiteRepository.save(analyse);
     }
 
     public AnalyseQualite obtenirAnalyseParId(Long id) {
@@ -45,7 +82,6 @@ public class AnalyseQualiteService {
 
         AnalyseQualite analyse = obtenirAnalyseParId(id);
 
-        analyse.setScore(analyseModifiee.getScore());
         analyse.setBugs(analyseModifiee.getBugs());
         analyse.setVulnerabilites(
                 analyseModifiee.getVulnerabilites());

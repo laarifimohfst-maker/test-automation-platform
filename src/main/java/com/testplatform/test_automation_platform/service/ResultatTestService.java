@@ -2,22 +2,21 @@ package com.testplatform.test_automation_platform.service;
 
 import com.testplatform.test_automation_platform.entity.ExecutionTest;
 import com.testplatform.test_automation_platform.entity.ResultatTest;
-import com.testplatform.test_automation_platform.repository.ResultatTestRepository;
 import com.testplatform.test_automation_platform.enums.StatutTest;
 import com.testplatform.test_automation_platform.enums.TypeTest;
+import com.testplatform.test_automation_platform.repository.ResultatTestRepository;
 import org.springframework.stereotype.Service;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import java.util.List;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class ResultatTestService {
@@ -79,14 +78,22 @@ public class ResultatTestService {
 
         resultats.addAll(
                 lireDossierRapports(
-                        Paths.get(cheminProjet, "target", "surefire-reports"),
+                        Paths.get(
+                                cheminProjet,
+                                "target",
+                                "surefire-reports"
+                        ),
                         executionTest
                 )
         );
 
         resultats.addAll(
                 lireDossierRapports(
-                        Paths.get(cheminProjet, "target", "failsafe-reports"),
+                        Paths.get(
+                                cheminProjet,
+                                "target",
+                                "failsafe-reports"
+                        ),
                         executionTest
                 )
         );
@@ -99,7 +106,6 @@ public class ResultatTestService {
             ExecutionTest executionTest) {
 
         List<ResultatTest> resultats = new ArrayList<>();
-
         File dossier = dossierRapports.toFile();
 
         if (!dossier.exists() || !dossier.isDirectory()) {
@@ -107,7 +113,8 @@ public class ResultatTestService {
         }
 
         File[] fichiersXml = dossier.listFiles(
-                (dir, nom) -> nom.endsWith(".xml")
+                (dir, nom) -> nom.startsWith("TEST-")
+                        && nom.endsWith(".xml")
         );
 
         if (fichiersXml == null) {
@@ -115,7 +122,9 @@ public class ResultatTestService {
         }
 
         for (File fichier : fichiersXml) {
-            resultats.addAll(lireFichierXml(fichier, executionTest));
+            resultats.addAll(
+                    lireFichierXml(fichier, executionTest)
+            );
         }
 
         return resultats;
@@ -128,71 +137,101 @@ public class ResultatTestService {
         List<ResultatTest> resultats = new ArrayList<>();
 
         try {
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            DocumentBuilderFactory factory =
+                    DocumentBuilderFactory.newInstance();
+            factory.setFeature(
+                    "http://apache.org/xml/features/disallow-doctype-decl",
+                    true
+            );
+
             DocumentBuilder builder = factory.newDocumentBuilder();
             Document document = builder.parse(fichier);
-
-            NodeList testcases = document.getElementsByTagName("testcase");
+            NodeList testcases =
+                    document.getElementsByTagName("testcase");
 
             for (int i = 0; i < testcases.getLength(); i++) {
-
                 Element testcase = (Element) testcases.item(i);
 
                 String nomTest = testcase.getAttribute("name");
                 String classname = testcase.getAttribute("classname");
-                double tempsEnSecondes = Double.parseDouble(
+                long duree = convertirDureeEnMillisecondes(
                         testcase.getAttribute("time")
                 );
-                long dureeEnMillisecondes = Math.round(tempsEnSecondes * 1000);
 
-                NodeList failures = testcase.getElementsByTagName("failure");
-                NodeList errors = testcase.getElementsByTagName("error");
+                NodeList failures =
+                        testcase.getElementsByTagName("failure");
+                NodeList errors =
+                        testcase.getElementsByTagName("error");
+                NodeList skipped =
+                        testcase.getElementsByTagName("skipped");
 
                 StatutTest statut;
                 String message = null;
 
                 if (failures.getLength() > 0) {
                     statut = StatutTest.ECHOUE;
-                    message = ((Element) failures.item(0)).getAttribute("message");
+                    message = extraireMessage(failures);
                 } else if (errors.getLength() > 0) {
                     statut = StatutTest.ECHOUE;
-                    message = ((Element) errors.item(0)).getAttribute("message");
+                    message = extraireMessage(errors);
+                } else if (skipped.getLength() > 0) {
+                    statut = StatutTest.IGNORED;
+                    message = extraireMessage(skipped);
                 } else {
                     statut = StatutTest.REUSSI;
                 }
 
-                TypeTest type = determinerType(classname);
-
                 ResultatTest resultat = ResultatTest.builder()
                         .executionTest(executionTest)
                         .nomTest(nomTest)
-                        .type(type)
+                        .type(determinerType(classname))
                         .statut(statut)
-                        .duree(dureeEnMillisecondes)
+                        .duree(duree)
                         .message(message)
                         .build();
 
                 resultats.add(enregistrerResultat(resultat));
             }
-
         } catch (Exception e) {
             System.out.println(
                     "Erreur lors de la lecture du fichier "
-                            + fichier.getName() + " : " + e.getMessage()
+                            + fichier.getName()
+                            + " : "
+                            + e.getMessage()
             );
         }
 
         return resultats;
     }
 
-    private TypeTest determinerType(String classname) {
+    private long convertirDureeEnMillisecondes(String valeur) {
+        if (valeur == null || valeur.isBlank()) {
+            return 0L;
+        }
 
+        return Math.round(Double.parseDouble(valeur) * 1000);
+    }
+
+    private String extraireMessage(NodeList noeuds) {
+        Element element = (Element) noeuds.item(0);
+        String message = element.getAttribute("message");
+
+        if (message == null || message.isBlank()) {
+            message = element.getTextContent();
+        }
+
+        return message;
+    }
+
+    private TypeTest determinerType(String classname) {
         if (classname.endsWith("ApiIT")) {
             return TypeTest.API;
-        } else if (classname.endsWith("IT")) {
-            return TypeTest.INTEGRATION;
-        } else {
-            return TypeTest.UNITAIRE;
         }
+
+        if (classname.endsWith("IT")) {
+            return TypeTest.INTEGRATION;
+        }
+
+        return TypeTest.UNITAIRE;
     }
 }

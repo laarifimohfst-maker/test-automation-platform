@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 import org.springframework.stereotype.Service;
 import java.nio.file.Paths;
 import java.io.IOException;
-
+import java.util.UUID;
 import java.util.List;
 
 @Service
@@ -55,7 +55,11 @@ public class ProjetService {
         projet.setStatut(StatutProjet.IMPORTE);
         projet.setTypeSource(TypeSource.ARCHIVE_ZIP);
 
-        return projetRepository.save(projet);
+        projet.setProjectKey("project-" + UUID.randomUUID());
+
+        Projet projetEnregistre = projetRepository.save(projet);
+
+        return projetEnregistre;
     }
 
     public Projet importerProjetGithub(
@@ -75,7 +79,11 @@ public class ProjetService {
         projet.setStatut(StatutProjet.IMPORTE);
         projet.setTypeSource(TypeSource.GITHUB);
 
-        return projetRepository.save(projet);
+        projet.setProjectKey("project-" + UUID.randomUUID());
+
+        Projet projetEnregistre = projetRepository.save(projet);
+
+        return projetEnregistre;
     }
 
     public List<Projet> obtenirTousLesProjets() {

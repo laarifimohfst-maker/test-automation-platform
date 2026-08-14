@@ -38,6 +38,9 @@ public class Projet {
     @Column(nullable = false)
     private String cheminLocal;
 
+    @Column(nullable = false, unique = true)
+    private String projectKey;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "utilisateur_id", nullable = false)
     private Utilisateur utilisateur;
