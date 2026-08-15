@@ -1,0 +1,228 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+
+    <style>
+        @page {
+            size: A4;
+            margin: 25px;
+        }
+
+        body {
+            font-family: Helvetica, Arial, sans-serif;
+            color: #263238;
+            background-color: #ffffff;
+            padding: 10px;
+            font-size: 13px;
+        }
+
+        /* =========================
+           EN-TÊTE
+           ========================= */
+
+        h1 {
+            color: #1f2937;
+            font-size: 24px;
+            margin: 0 0 8px 0;
+            padding-bottom: 12px;
+            border-bottom: 3px solid #3498db;
+        }
+
+        .meta {
+            color: #6b7280;
+            font-size: 11px;
+            line-height: 1.8;
+            margin-bottom: 25px;
+            padding: 12px 15px;
+            background-color: #f8fafc;
+            border-left: 4px solid #3498db;
+        }
+
+        /* =========================
+           STATISTIQUES
+           ========================= */
+
+        .stats {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-bottom: 30px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .stats td {
+            padding: 12px 8px;
+            text-align: center;
+            font-size: 13px;
+            border-right: 1px solid #e2e8f0;
+        }
+
+        .stats td:last-child {
+            border-right: none;
+        }
+
+        .stats tr:first-child td {
+            background-color: #f1f5f9;
+            color: #475569;
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .stats tr:last-child td {
+            background-color: #ffffff;
+            font-size: 16px;
+            font-weight: bold;
+            color: #1f2937;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .reussi {
+            color: #16a34a !important;
+        }
+
+        .echoue {
+            color: #dc2626 !important;
+        }
+
+        .ignore {
+            color: #d97706 !important;
+        }
+
+        /* =========================
+           SECTIONS
+           ========================= */
+
+        h2 {
+            color: #1f2937;
+            font-size: 16px;
+            margin-top: 28px;
+            margin-bottom: 12px;
+            padding-left: 10px;
+            border-left: 4px solid #3498db;
+        }
+
+        /* =========================
+           RÉPARTITION
+           ========================= */
+
+        .repartition {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 14px 16px;
+            margin-bottom: 25px;
+            color: #475569;
+            font-size: 12px;
+        }
+
+        /* =========================
+           TABLE DES ÉCHECS
+           ========================= */
+
+        table.echecs {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            border: 1px solid #e2e8f0;
+        }
+
+        table.echecs th,
+        table.echecs td {
+            border: 1px solid #e2e8f0;
+            padding: 9px 10px;
+            font-size: 11px;
+            text-align: left;
+        }
+
+        table.echecs th {
+            background-color: #f1f5f9;
+            color: #374151;
+            font-weight: bold;
+        }
+
+        table.echecs tr:nth-child(even) td {
+            background-color: #f8fafc;
+        }
+
+        table.echecs td {
+            color: #4b5563;
+        }
+
+        /* =========================
+           AUCUN ÉCHEC
+           ========================= */
+
+        .aucun-echec {
+            color: #16a34a;
+            background-color: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            padding: 12px 15px;
+            font-style: italic;
+            font-size: 12px;
+        }
+
+        /* =========================
+           PIED DE PAGE
+           ========================= */
+
+        .footer {
+            margin-top: 35px;
+            padding-top: 10px;
+            border-top: 1px solid #e2e8f0;
+            text-align: center;
+            color: #94a3b8;
+            font-size: 9px;
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>Rapport de tests - Execution #${executionId}</h1>
+
+<div class="meta">
+    Date d'exécution : ${dateExecution}<br/>
+    Rapport généré le : ${dateGeneration}
+</div>
+
+
+<table class="stats">
+    <tr>
+        <td class="label">Total</td>
+        <td class="label">Réussis</td>
+        <td class="label">Échoués</td>
+        <td class="label">Ignorés</td>
+        <td class="label">Durée totale</td>
+    </tr>
+
+    <tr>
+        <td>${total}</td>
+        <td class="reussi">${reussis}</td>
+        <td class="echoue">${echoues}</td>
+        <td class="ignore">${ignores}</td>
+        <td>${dureeTotaleMs} ms</td>
+    </tr>
+</table>
+
+
+<h2>Répartition par type de test</h2>
+
+<div class="repartition">
+    ${parTypeTexte}
+</div>
+
+
+<h2>Tests échoués</h2>
+
+${blocEchecs}
+
+
+<div class="footer">
+    Rapport généré automatiquement par la plateforme d'automatisation des tests
+</div>
+
+</body>
+</html>
+

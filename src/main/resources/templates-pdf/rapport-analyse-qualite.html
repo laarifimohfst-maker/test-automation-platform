@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <style>
+        body {
+            font-family: Helvetica, Arial, sans-serif;
+            color: #263238;
+            background-color: #ffffff;
+            padding: 30px;
+        }
+
+        h1 {
+            color: #1f2937;
+            font-size: 24px;
+            margin-bottom: 18px;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+
+        .meta {
+            color: #64748b;
+            font-size: 12px;
+            line-height: 1.8;
+            margin-bottom: 25px;
+            padding: 12px 15px;
+            background-color: #f8fafc;
+            border-left: 4px solid #3498db;
+        }
+
+        .stats {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 25px;
+            border: 1px solid #dbe3ea;
+        }
+
+        .stats td {
+            border: 1px solid #dbe3ea;
+            padding: 12px 10px;
+            text-align: center;
+            font-size: 13px;
+        }
+
+        .stats .label {
+            font-weight: bold;
+            background-color: #f1f5f9;
+            color: #475569;
+            font-size: 11px;
+            text-transform: uppercase;
+        }
+
+        .stats tr:last-child td {
+            background-color: #ffffff;
+            color: #1f2937;
+            font-size: 15px;
+            font-weight: bold;
+        }
+
+        .gate-reussi {
+            color: #16a34a !important;
+            font-weight: bold;
+        }
+
+        .gate-echoue {
+            color: #dc2626 !important;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Rapport d'analyse qualité - Execution #${executionId}</h1>
+<div class="meta">
+    Date d'exécution : ${dateExecution}<br/>
+    Date d'analyse : ${dateAnalyse}<br/>
+    Rapport généré le : ${dateGeneration}
+</div>
+
+<table class="stats">
+    <tr>
+        <td class="label">Bugs</td>
+        <td class="label">Vulnérabilités</td>
+        <td class="label">Code Smells</td>
+        <td class="label">Duplication</td>
+        <td class="label">Coverage</td>
+        <td class="label">Quality Gate</td>
+    </tr>
+    <tr>
+        <td>${bugs}</td>
+        <td>${vulnerabilites}</td>
+        <td>${codeSmells}</td>
+        <td>${duplication}%</td>
+        <td>${coverage}%</td>
+        <td class="${qualityGateClass}">${qualityGateStatus}</td>
+    </tr>
+</table>
+
+</body>
+</html>

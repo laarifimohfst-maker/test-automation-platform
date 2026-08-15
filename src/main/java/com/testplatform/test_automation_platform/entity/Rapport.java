@@ -31,6 +31,9 @@ public class Rapport {
 
     private Long taille;
 
+    @Column(columnDefinition = "TEXT")
+    private String contenu;
+
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "execution_id", nullable = false, unique = true)
     private Execution execution;

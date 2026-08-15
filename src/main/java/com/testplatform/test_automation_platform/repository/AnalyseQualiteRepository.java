@@ -12,4 +12,5 @@ public interface AnalyseQualiteRepository
     Optional<AnalyseQualite> findByExecutionAnalyseQualite(
             ExecutionAnalyseQualite executionAnalyseQualite
     );
+    Optional<AnalyseQualite> findByExecutionAnalyseQualite_Id(Long executionId);
 }
