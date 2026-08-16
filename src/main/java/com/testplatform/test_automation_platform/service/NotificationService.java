@@ -2,6 +2,7 @@ package com.testplatform.test_automation_platform.service;
 
 import com.testplatform.test_automation_platform.entity.Notification;
 import com.testplatform.test_automation_platform.entity.Utilisateur;
+import com.testplatform.test_automation_platform.entity.Execution;
 import com.testplatform.test_automation_platform.enums.TypeNotification;
 import com.testplatform.test_automation_platform.repository.NotificationRepository;
 import org.springframework.stereotype.Service;
@@ -83,5 +84,21 @@ public class NotificationService {
         }
 
         notificationRepository.deleteById(id);
+    }
+
+    public Notification notifierFinExecution(Execution execution, boolean succes, String messageDetail) {
+
+        Utilisateur utilisateur = execution.getProjet().getUtilisateur();
+
+        Notification notification = Notification.builder()
+                .message(messageDetail)
+                .type(succes ? TypeNotification.SUCCES : TypeNotification.ECHEC)
+                .lue(false)
+                .dateEnvoi(LocalDateTime.now())
+                .utilisateur(utilisateur)
+                .execution(execution)
+                .build();
+
+        return notificationRepository.save(notification);
     }
 }

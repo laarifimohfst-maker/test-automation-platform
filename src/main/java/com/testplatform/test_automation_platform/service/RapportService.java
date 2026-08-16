@@ -1,6 +1,7 @@
 package com.testplatform.test_automation_platform.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.testplatform.test_automation_platform.entity.Execution;
 import com.testplatform.test_automation_platform.entity.ExecutionAnalyseQualite;
 import com.testplatform.test_automation_platform.enums.StatutQualityGate;
@@ -201,6 +202,21 @@ public class RapportService {
 
         String dateExecutionStr = execution.getDateDebut() != null ? execution.getDateDebut().toString() : null;
 
+        // Parser les issues stockées en JSON pour les remettre en objets Java
+        List<Map<String, Object>> issuesList;
+        try {
+            if (analyse.getIssuesJson() != null && !analyse.getIssuesJson().isBlank()) {
+                issuesList = objectMapper.readValue(
+                        analyse.getIssuesJson(),
+                        new TypeReference<List<Map<String, Object>>>() {}
+                );
+            } else {
+                issuesList = List.of();
+            }
+        } catch (Exception e) {
+            issuesList = List.of();
+        }
+
         // 1. Construire le JSON (contenu)
         Map<String, Object> contenuMap = new LinkedHashMap<>();
         contenuMap.put("executionId", executionId);
@@ -212,6 +228,7 @@ public class RapportService {
         contenuMap.put("coverage", analyse.getCoverage());
         contenuMap.put("qualityGateStatus", analyse.getQualityGateStatus());
         contenuMap.put("dateAnalyse", analyse.getDateAnalyse() != null ? analyse.getDateAnalyse().toString() : null);
+        contenuMap.put("issues", issuesList);   // <-- nouveau
 
         String contenuJson;
         try {
@@ -221,7 +238,7 @@ public class RapportService {
         }
 
         // 2. Construire le HTML rempli
-        String html = construireHtmlRapportAnalyseQualite(executionId, dateExecutionStr, analyse);
+        String html = construireHtmlRapportAnalyseQualite(executionId, dateExecutionStr, analyse, issuesList);
 
         // 3. Convertir en PDF
         byte[] pdfBytes = pdfGeneratorService.genererPdfDepuisHtml(html);
@@ -318,12 +335,30 @@ public class RapportService {
     private String construireHtmlRapportAnalyseQualite(
             Long executionId,
             String dateExecution,
-            AnalyseQualite analyse) {
+            AnalyseQualite analyse,
+            List<Map<String, Object>> issuesList) {
 
         String html = lireTemplate("rapport-analyse-qualite.html");
 
         String qualityGateClass = analyse.getQualityGateStatus() == StatutQualityGate.REUSSI
                 ? "gate-reussi" : "gate-echoue";
+
+        String blocIssues;
+        if (issuesList.isEmpty()) {
+            blocIssues = "<p class=\"aucun-echec\">Aucune issue détectée.</p>";
+        } else {
+            StringBuilder sb = new StringBuilder();
+            sb.append("<table class=\"echecs\"><tr><th>Fichier</th><th>Ligne</th><th>Type</th><th>Sévérité</th><th>Message</th></tr>");
+            for (Map<String, Object> issue : issuesList) {
+                sb.append("<tr><td>").append(issue.get("fichier")).append("</td>")
+                        .append("<td>").append(issue.get("ligne")).append("</td>")
+                        .append("<td>").append(issue.get("type")).append("</td>")
+                        .append("<td>").append(issue.get("severite")).append("</td>")
+                        .append("<td>").append(issue.get("message")).append("</td></tr>");
+            }
+            sb.append("</table>");
+            blocIssues = sb.toString();
+        }
 
         return html
                 .replace("${executionId}", String.valueOf(executionId))
@@ -336,6 +371,7 @@ public class RapportService {
                 .replace("${duplication}", String.valueOf(analyse.getDuplication()))
                 .replace("${coverage}", String.valueOf(analyse.getCoverage()))
                 .replace("${qualityGateStatus}", String.valueOf(analyse.getQualityGateStatus()))
-                .replace("${qualityGateClass}", qualityGateClass);
+                .replace("${qualityGateClass}", qualityGateClass)
+                .replace("${blocIssues}", blocIssues);
     }
 }

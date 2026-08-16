@@ -26,8 +26,6 @@ public abstract class Execution {
     @Enumerated(EnumType.STRING)
     protected StatutExecution statut;
 
-    protected String branche;
-
     protected String message;
 
     @ManyToOne(fetch = FetchType.LAZY)

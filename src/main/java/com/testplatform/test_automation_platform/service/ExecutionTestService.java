@@ -16,15 +16,18 @@ public class ExecutionTestService {
     private final ExecutionTestRepository executionTestRepository;
     private final MavenExecutionService mavenExecutionService;
     private final ResultatTestService resultatTestService;
+    private final NotificationService notificationService;
 
     public ExecutionTestService(
             ExecutionTestRepository executionTestRepository,
             MavenExecutionService mavenExecutionService,
-            ResultatTestService resultatTestService) {
+            ResultatTestService resultatTestService,
+            NotificationService notificationService) {
 
         this.executionTestRepository = executionTestRepository;
         this.mavenExecutionService = mavenExecutionService;
         this.resultatTestService = resultatTestService;
+        this.notificationService = notificationService;
     }
 
     public ExecutionTest creerExecution(
@@ -97,62 +100,37 @@ public class ExecutionTestService {
         executionTestRepository.deleteById(id);
     }
 
-    public ExecutionTest executerTests(Long id)
-            throws Exception {
+    public ExecutionTest executerTests(Long id) throws Exception {
 
-        ExecutionTest execution =
-                obtenirExecutionParId(id);
+        ExecutionTest execution = obtenirExecutionParId(id);
 
-        ConfigurationTest configuration =
-                execution.getConfigurationTest();
-
-        Projet projet =
-                execution.getProjet();
-
-        String cheminProjet =
-                projet.getCheminLocal();
+        ConfigurationTest configuration = execution.getConfigurationTest();
+        Projet projet = execution.getProjet();
+        String cheminProjet = projet.getCheminLocal();
 
         execution.setStatut(StatutExecution.EN_COURS);
         execution.setDateDebut(LocalDateTime.now());
-
         executionTestRepository.save(execution);
 
-        int codeRetour =
-                mavenExecutionService.executerTests(
-                        cheminProjet,
-                        configuration
-                );
+        int codeRetour = mavenExecutionService.executerTests(cheminProjet, configuration);
 
-        if (codeRetour == 0) {
+        boolean succes = (codeRetour == 0);
 
-            execution.setStatut(
-                    StatutExecution.TERMINEE
-            );
-
-            execution.setMessage(
-                    "Les tests ont été exécutés avec succès."
-            );
-
+        if (succes) {
+            execution.setStatut(StatutExecution.TERMINEE);
+            execution.setMessage("Les tests ont été exécutés avec succès.");
         } else {
-
-            execution.setStatut(
-                    StatutExecution.ECHOUEE
-            );
-
-            execution.setMessage(
-                    "Les tests ont échoué. Code retour Maven : "
-                            + codeRetour
-            );
+            execution.setStatut(StatutExecution.ECHOUEE);
+            execution.setMessage("Les tests ont échoué. Code retour Maven : " + codeRetour);
         }
 
         execution.setDateFin(LocalDateTime.now());
-
         executionTestRepository.save(execution);
 
-        resultatTestService.lireEtEnregistrerResultats(
-                cheminProjet,
-                execution
-        );
+        resultatTestService.lireEtEnregistrerResultats(cheminProjet, execution);
+
+        // Notification automatique de fin d'exécution
+        notificationService.notifierFinExecution(execution, succes, execution.getMessage());
 
         return execution;
     }

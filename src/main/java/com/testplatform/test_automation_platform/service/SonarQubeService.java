@@ -8,6 +8,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import lombok.Getter;
+import lombok.Setter;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+
 @Service
 public class SonarQubeService {
 
@@ -16,6 +25,21 @@ public class SonarQubeService {
 
     @Value("${sonar.login}")
     private String sonarToken;
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class IssueSonar {
+
+        private String fichier;
+        private Integer ligne;
+        private String message;
+        private String severite;
+        private String type;
+        private String regle;
+    }
 
     private final RestClient restClient;
     private final ObjectMapper objectMapper;
@@ -288,51 +312,65 @@ public class SonarQubeService {
         return Double.parseDouble(value);
     }
 
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
     public static class MetriquesSonar {
+
         private Integer bugs = 0;
         private Integer vulnerabilites = 0;
         private Integer codeSmells = 0;
         private Double duplication = 0.0;
         private Double coverage = 0.0;
+    }
 
-        public Integer getBugs() {
-            return bugs;
+    public List<IssueSonar> obtenirIssues(String projectKey) {
+
+        String response = restClient.get()
+                .uri(
+                        sonarHostUrl
+                                + "/api/issues/search"
+                                + "?componentKeys={projectKey}"
+                                + "&statuses=OPEN,CONFIRMED,REOPENED"
+                                + "&ps=500",
+                        projectKey
+                )
+                .headers(headers -> headers.setBasicAuth(sonarToken, ""))
+                .retrieve()
+                .body(String.class);
+
+        if (response == null || response.isBlank()) {
+            return List.of();
         }
 
-        public void setBugs(Integer bugs) {
-            this.bugs = bugs;
-        }
+        try {
+            JsonNode issuesNode = objectMapper.readTree(response).path("issues");
+            List<IssueSonar> issues = new ArrayList<>();
 
-        public Integer getVulnerabilites() {
-            return vulnerabilites;
-        }
+            for (JsonNode issue : issuesNode) {
+                String component = issue.path("component").asText("");
+                String fichier = component.contains(":")
+                        ? component.substring(component.indexOf(":") + 1)
+                        : component;
 
-        public void setVulnerabilites(Integer vulnerabilites) {
-            this.vulnerabilites = vulnerabilites;
-        }
+                issues.add(IssueSonar.builder()
+                        .fichier(fichier)
+                        .ligne(issue.path("line").isMissingNode() ? null : issue.path("line").asInt())
+                        .message(issue.path("message").asText(""))
+                        .severite(issue.path("severity").asText(""))
+                        .type(issue.path("type").asText(""))
+                        .regle(issue.path("rule").asText(""))
+                        .build());
+            }
 
-        public Integer getCodeSmells() {
-            return codeSmells;
-        }
+            return issues;
 
-        public void setCodeSmells(Integer codeSmells) {
-            this.codeSmells = codeSmells;
-        }
-
-        public Double getDuplication() {
-            return duplication;
-        }
-
-        public void setDuplication(Double duplication) {
-            this.duplication = duplication;
-        }
-
-        public Double getCoverage() {
-            return coverage;
-        }
-
-        public void setCoverage(Double coverage) {
-            this.coverage = coverage;
+        } catch (Exception e) {
+            throw new IllegalStateException(
+                    "Reponse SonarQube invalide (issues) : " + e.getMessage(), e
+            );
         }
     }
 }

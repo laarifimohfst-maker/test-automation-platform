@@ -16,17 +16,20 @@ public class ExecutionAnalyseQualiteService {
     private final SonarQubeService sonarQubeService;
     private final MavenExecutionService mavenExecutionService;
     private final AnalyseQualiteService analyseQualiteService;
+    private final NotificationService notificationService;
 
     public ExecutionAnalyseQualiteService(
             ExecutionAnalyseQualiteRepository executionRepository,
             SonarQubeService sonarQubeService,
             MavenExecutionService mavenExecutionService,
-            AnalyseQualiteService analyseQualiteService) {
+            AnalyseQualiteService analyseQualiteService,
+            NotificationService notificationService) {
 
         this.executionRepository = executionRepository;
         this.sonarQubeService = sonarQubeService;
         this.mavenExecutionService = mavenExecutionService;
         this.analyseQualiteService = analyseQualiteService;
+        this.notificationService = notificationService;
     }
 
     public ExecutionAnalyseQualite creerExecution(Projet projet) {
@@ -91,13 +94,10 @@ public class ExecutionAnalyseQualiteService {
 
     public ExecutionAnalyseQualite executerAnalyse(Long id) {
 
-        ExecutionAnalyseQualite execution =
-                obtenirExecutionParId(id);
-
+        ExecutionAnalyseQualite execution = obtenirExecutionParId(id);
         Projet projet = execution.getProjet();
 
         try {
-
             demarrerExecution(id);
 
             String projectKey = projet.getProjectKey();
@@ -106,78 +106,70 @@ public class ExecutionAnalyseQualiteService {
             if (!sonarQubeService.projetExiste(projectKey)) {
 
                 // Créer le projet dans SonarQube
-                sonarQubeService.creerProjet(
-                        projectKey,
-                        projet.getNom()
-                );
-
+                sonarQubeService.creerProjet(projectKey, projet.getNom());
             }
 
             // Affecter le Quality Gate, y compris lorsque le projet existe deja.
             sonarQubeService.affecterQualityGate(projectKey);
 
             // Memoriser la derniere analyse afin de ne pas reutiliser son statut.
-            String ancienneCleAnalyse =
-                    sonarQubeService.obtenirCleDerniereAnalyse(projectKey);
+            String ancienneCleAnalyse = sonarQubeService.obtenirCleDerniereAnalyse(projectKey);
 
             // Lancer l'analyse Maven + SonarQube
-            int codeRetour =
-                    mavenExecutionService.executerAnalyseQualite(
-                            projet.getCheminLocal(),
-                            projectKey
-                    );
+            int codeRetour = mavenExecutionService.executerAnalyseQualite(
+                    projet.getCheminLocal(), projectKey);
 
             if (codeRetour == 0) {
 
-                String statutQualityGate =
-                        sonarQubeService.attendreNouvelleAnalyseEtQualityGate(
-                                projectKey,
-                                ancienneCleAnalyse
-                        );
+                String statutQualityGate = sonarQubeService.attendreNouvelleAnalyseEtQualityGate(
+                        projectKey, ancienneCleAnalyse);
 
                 SonarQubeService.MetriquesSonar metriques =
                         sonarQubeService.obtenirMetriques(projectKey);
 
-                analyseQualiteService.enregistrerResultatsSonar(
-                        execution,
-                        metriques,
-                        statutQualityGate
-                );
+                List<SonarQubeService.IssueSonar> issues =
+                        sonarQubeService.obtenirIssues(projectKey);
+
+                analyseQualiteService.enregistrerResultatsSonar(execution, metriques, issues, statutQualityGate);
 
                 if ("OK".equals(statutQualityGate)) {
 
-                    return terminerExecution(
-                            id,
-                            StatutExecution.TERMINEE,
-                            "Analyse terminée. Quality Gate réussi."
-                    );
+                    ExecutionAnalyseQualite resultat = terminerExecution(
+                            id, StatutExecution.TERMINEE, "Analyse terminée. Quality Gate réussi.");
+
+                    notificationService.notifierFinExecution(resultat, true, resultat.getMessage());
+
+                    return resultat;
 
                 } else {
 
-                    return terminerExecution(
-                            id,
-                            StatutExecution.ECHOUEE,
-                            "Analyse terminée. Quality Gate échoué."
-                    );
+                    ExecutionAnalyseQualite resultat = terminerExecution(
+                            id, StatutExecution.ECHOUEE, "Analyse terminée. Quality Gate échoué.");
+
+                    notificationService.notifierFinExecution(resultat, false, resultat.getMessage());
+
+                    return resultat;
                 }
 
             } else {
 
-                return terminerExecution(
-                        id,
-                        StatutExecution.ECHOUEE,
-                        "L'analyse de qualité a échoué. Code retour Maven : "
-                                + codeRetour
-                );
+                ExecutionAnalyseQualite resultat = terminerExecution(
+                        id, StatutExecution.ECHOUEE,
+                        "L'analyse de qualité a échoué. Code retour Maven : " + codeRetour);
+
+                notificationService.notifierFinExecution(resultat, false, resultat.getMessage());
+
+                return resultat;
             }
 
         } catch (Exception e) {
 
-            return terminerExecution(
-                    id,
-                    StatutExecution.ECHOUEE,
-                    "Erreur lors de l'analyse : " + e.getMessage()
-            );
+            ExecutionAnalyseQualite resultat = terminerExecution(
+                    id, StatutExecution.ECHOUEE, "Erreur lors de l'analyse : " + e.getMessage());
+
+            notificationService.notifierFinExecution(resultat, false, resultat.getMessage());
+
+            return resultat;
         }
     }
 }

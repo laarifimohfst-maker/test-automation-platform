@@ -34,6 +34,9 @@ public class AnalyseQualite {
 
     private LocalDateTime dateAnalyse;
 
+    @Column(columnDefinition = "TEXT")
+    private String issuesJson;
+
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "execution_analyse_qualite_id", nullable = false, unique = true)
     private ExecutionAnalyseQualite executionAnalyseQualite;

@@ -16,11 +16,13 @@ import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
 import java.util.Base64;
+import java.util.List;
 
 @Service
 public class AnalyseQualiteService {
 
     private final AnalyseQualiteRepository analyseQualiteRepository;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     public AnalyseQualiteService(
             AnalyseQualiteRepository analyseQualiteRepository) {
@@ -36,6 +38,7 @@ public class AnalyseQualiteService {
     public AnalyseQualite enregistrerResultatsSonar(
             ExecutionAnalyseQualite execution,
             SonarQubeService.MetriquesSonar metriques,
+            List<SonarQubeService.IssueSonar> issues,
             String statutQualityGate) {
 
         AnalyseQualite analyse = analyseQualiteRepository
@@ -54,6 +57,13 @@ public class AnalyseQualiteService {
         );
         analyse.setDateAnalyse(LocalDateTime.now());
         analyse.setExecutionAnalyseQualite(execution);
+
+        try {
+            String issuesJson = objectMapper.writeValueAsString(issues);
+            analyse.setIssuesJson(issuesJson);
+        } catch (Exception e) {
+            analyse.setIssuesJson("[]");
+        }
 
         return analyseQualiteRepository.save(analyse);
     }
