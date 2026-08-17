@@ -1,37 +1,67 @@
+# =========================
+# Backend - Spring Boot
+# =========================
 HELP.md
-target/
-.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
+test-automation-platform/target/
+test-automation-platform/.mvn/wrapper/maven-wrapper.jar
+!test-automation-platform/**/src/main/**/target/
+!test-automation-platform/**/src/test/**/target/
 
-### STS ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
+# STS
+test-automation-platform/.apt_generated/
+test-automation-platform/.classpath
+test-automation-platform/.factorypath
+test-automation-platform/.project
+test-automation-platform/.settings/
+test-automation-platform/.springBeans
+test-automation-platform/.sts4-cache/
 
-### IntelliJ IDEA ###
-.idea
-*.iws
-*.iml
-*.ipr
+# IntelliJ IDEA
+test-automation-platform/.idea/
+test-automation-platform/*.iws
+test-automation-platform/*.iml
+test-automation-platform/*.ipr
 
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
+# NetBeans
+test-automation-platform/nbproject/private/
+test-automation-platform/nbbuild/
+test-automation-platform/dist/
+test-automation-platform/nbdist/
+test-automation-platform/.nb-gradle/
+test-automation-platform/build/
 
-### VS Code ###
-.vscode/
+# VS Code
+test-automation-platform/.vscode/
 
-/uploads/
+# Generated files
+test-automation-platform/uploads/
+test-automation-platform/reports/
 
-/reports/
+# =========================
+# Frontend - React / Vite
+# =========================
+test-automation-frontend/node_modules/
+test-automation-frontend/dist/
+test-automation-frontend/dist-ssr/
+test-automation-frontend/*.local
+
+# Logs
+test-automation-frontend/logs/
+test-automation-frontend/*.log
+test-automation-frontend/npm-debug.log*
+test-automation-frontend/yarn-debug.log*
+test-automation-frontend/yarn-error.log*
+test-automation-frontend/pnpm-debug.log*
+test-automation-frontend/lerna-debug.log*
+
+# Frontend IDE
+test-automation-frontend/.vscode/
+test-automation-frontend/.idea/
+test-automation-frontend/.DS_Store
+test-automation-frontend/*.suo
+test-automation-frontend/*.ntvs*
+test-automation-frontend/*.njsproj
+test-automation-frontend/*.sln
+test-automation-frontend/*.sw?
+
+.idea/
