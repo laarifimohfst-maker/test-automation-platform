@@ -3,7 +3,7 @@ import Sidebar from './components/Sidebar';
 import Header from './components/Header';
 import Dashboard from './pages/Dashboard';
 import Projets from './pages/Projets';
-
+import ConfigurationTest from './pages/ConfigurationTest';
 function App() {
   return (
     <div style={{ display: 'flex' }}>
@@ -14,6 +14,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/projets" element={<Projets />} />
+            <Route path="/configurations" element={<ConfigurationTest />} />
           </Routes>
         </div>
       </div>

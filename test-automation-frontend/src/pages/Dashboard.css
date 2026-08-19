@@ -1,0 +1,118 @@
+.container {
+  padding-bottom: 16px;
+}
+
+.statsRow {
+  display: flex;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.chartsRow {
+  display: flex;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.chartCardWide {
+  background-color: #ffffff;
+  border-radius: 10px;
+  padding: 12px;
+  flex: 2;
+}
+
+.chartCard {
+  background-color: #ffffff;
+  border-radius: 10px;
+  padding: 12px;
+  flex: 1;
+}
+
+.chartTitle {
+  margin: 0 0 10px 0;
+  font-weight: bold;
+}
+
+.donutCenter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  height: 120px;
+}
+
+.legendRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.legendDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.legendText {
+  font-size: 12px;
+}
+
+.tablesRow {
+  display: flex;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.tableCard {
+  background-color: #ffffff;
+  border-radius: 10px;
+  padding: 12px;
+  flex: 1;
+}
+
+.tableTitle {
+  margin: 0 0 10px 0;
+  font-weight: bold;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.theadRow {
+  text-align: left;
+  color: #6b7280;
+  font-size: 12px;
+}
+
+.th {
+  padding: 6px 0;
+}
+
+.row {
+  border-top: 1px solid #e5e7eb;
+  font-size: 13px;
+}
+
+.td {
+  padding: 8px 0;
+}
+
+.badge {
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+}
+
+.badgeSucces {
+  background-color: #dcfce7;
+  color: #16a34a;
+}
+
+.badgeEchec {
+  background-color: #fee2e2;
+  color: #dc2626;
+}

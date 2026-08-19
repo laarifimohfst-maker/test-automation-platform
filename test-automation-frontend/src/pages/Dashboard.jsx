@@ -3,6 +3,7 @@ import { obtenirDashboard } from '../services/dashboardService';
 import StatCard from '../components/StatCard';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { Folder, Play, CheckCircle, XCircle, AlertCircle, Shield } from 'lucide-react';
+import './Dashboard.css';
 
 function Dashboard() {
   const [donnees, setDonnees] = useState(null);
@@ -34,8 +35,8 @@ function Dashboard() {
   ];
 
   return (
-    <div style={{ paddingBottom: '16px' }}>
-      <div style={{ display: 'flex', gap: '12px', marginTop: '14px' }}>
+    <div className="container">
+      <div className="statsRow">
         <StatCard titre="Projets" valeur={donnees.nbProjets} couleur="#7c3aed" fondIcone="#ede9fe" icone={<Folder size={20} />} />
         <StatCard titre="Exécutions" valeur={donnees.nbExecutions} couleur="#16a34a" fondIcone="#dcfce7" icone={<Play size={20} />} />
         <StatCard titre="Tests réussis" valeur={donnees.testsReussis} couleur="#16a34a" fondIcone="#dcfce7" icone={<CheckCircle size={20} />} />
@@ -44,9 +45,9 @@ function Dashboard() {
         <StatCard titre="Quality Gates KO" valeur={donnees.gatesKo} couleur="#7c3aed" fondIcone="#ede9fe" icone={<Shield size={20} />} />
       </div>
 
-      <div style={{ display: 'flex', gap: '12px', marginTop: '14px' }}>
-        <div style={{ backgroundColor: '#ffffff', borderRadius: '10px', padding: '12px', flex: 2 }}>
-          <p style={{ margin: '0 0 10px 0', fontWeight: 'bold' }}>Évolution des exécutions</p>
+      <div className="chartsRow">
+        <div className="chartCardWide">
+          <p className="chartTitle">Évolution des exécutions</p>
           <ResponsiveContainer width="100%" height={180}>
             <LineChart data={donnees.evolutionExecutions}>
               <CartesianGrid strokeDasharray="3 3" />
@@ -62,9 +63,9 @@ function Dashboard() {
           const total = graphique.data.reduce((somme, entree) => somme + entree.valeur, 0);
 
           return (
-            <div key={graphique.titre} style={{ backgroundColor: '#ffffff', borderRadius: '10px', padding: '12px', flex: 1 }}>
-              <p style={{ margin: '0 0 10px 0', fontWeight: 'bold' }}>{graphique.titre}</p>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', height: '120px' }}>
+            <div key={graphique.titre} className="chartCard">
+              <p className="chartTitle">{graphique.titre}</p>
+              <div className="donutCenter">
                 <ResponsiveContainer width={110} height={110}>
                   <PieChart>
                     <Pie data={graphique.data} dataKey="valeur" nameKey="nom" innerRadius={30} outerRadius={50}>
@@ -77,9 +78,9 @@ function Dashboard() {
 
                 <div>
                   {graphique.data.map((entree) => (
-                    <div key={entree.nom} style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
-                      <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: entree.couleur, display: 'inline-block' }}></span>
-                      <span style={{ fontSize: '12px' }}>
+                    <div key={entree.nom} className="legendRow">
+                      <span className="legendDot" style={{ backgroundColor: entree.couleur }}></span>
+                      <span className="legendText">
                         {entree.nom} ({entree.valeur}) {total > 0 ? Math.round((entree.valeur / total) * 1000) / 10 : 0}%
                       </span>
                     </div>
@@ -91,59 +92,53 @@ function Dashboard() {
         })}
       </div>
 
-      <div style={{ display: 'flex', gap: '12px', marginTop: '14px' }}>
-        <div style={{ backgroundColor: '#ffffff', borderRadius: '10px', padding: '12px', flex: 1 }}>
-          <p style={{ margin: '0 0 10px 0', fontWeight: 'bold' }}>Dernières exécutions</p>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+      <div className="tablesRow">
+        <div className="tableCard">
+          <p className="tableTitle">Dernières exécutions</p>
+          <table className="table">
             <thead>
-              <tr style={{ textAlign: 'left', color: '#6b7280', fontSize: '12px' }}>
-                <th style={{ padding: '6px 0' }}>Projet</th>
-                <th style={{ padding: '6px 0' }}>Type</th>
-                <th style={{ padding: '6px 0' }}>Statut</th>
-                <th style={{ padding: '6px 0' }}>Date</th>
+              <tr className="theadRow">
+                <th className="th">Projet</th>
+                <th className="th">Type</th>
+                <th className="th">Statut</th>
+                <th className="th">Date</th>
               </tr>
             </thead>
             <tbody>
               {donnees.dernieresExecutions.map((execution) => (
-                <tr key={execution.executionId} style={{ borderTop: '1px solid #e5e7eb', fontSize: '13px' }}>
-                  <td style={{ padding: '8px 0' }}>{execution.projetNom}</td>
-                  <td style={{ padding: '8px 0' }}>{execution.type === 'TESTS' ? 'Tests' : 'Analyse qualité'}</td>
-                  <td style={{ padding: '8px 0' }}>
-                    <span style={{
-                      backgroundColor: execution.statut === 'TERMINEE' ? '#dcfce7' : '#fee2e2',
-                      color: execution.statut === 'TERMINEE' ? '#16a34a' : '#dc2626',
-                      padding: '3px 8px',
-                      borderRadius: '6px',
-                      fontSize: '11px',
-                    }}>
+                <tr key={execution.executionId} className="row">
+                  <td className="td">{execution.projetNom}</td>
+                  <td className="td">{execution.type === 'TESTS' ? 'Tests' : 'Analyse qualité'}</td>
+                  <td className="td">
+                    <span className={`badge ${execution.statut === 'TERMINEE' ? 'badgeSucces' : 'badgeEchec'}`}>
                       {execution.statut === 'TERMINEE' ? 'Réussie' : 'Échouée'}
                     </span>
                   </td>
-                  <td style={{ padding: '8px 0' }}>{execution.date}</td>
+                  <td className="td">{execution.date}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
 
-        <div style={{ backgroundColor: '#ffffff', borderRadius: '10px', padding: '12px', flex: 1 }}>
-          <p style={{ margin: '0 0 10px 0', fontWeight: 'bold' }}>Mes projets</p>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <div className="tableCard">
+          <p className="tableTitle">Mes projets</p>
+          <table className="table">
             <thead>
-              <tr style={{ textAlign: 'left', color: '#6b7280', fontSize: '12px' }}>
-                <th style={{ padding: '6px 0' }}>Nom</th>
-                <th style={{ padding: '6px 0' }}>Source</th>
-                <th style={{ padding: '6px 0' }}>Dernière exécution</th>
-                <th style={{ padding: '6px 0' }}>Statut</th>
+              <tr className="theadRow">
+                <th className="th">Nom</th>
+                <th className="th">Source</th>
+                <th className="th">Dernière exécution</th>
+                <th className="th">Statut</th>
               </tr>
             </thead>
             <tbody>
               {donnees.mesProjets.map((projet) => (
-                <tr key={projet.projetId} style={{ borderTop: '1px solid #e5e7eb', fontSize: '13px' }}>
-                  <td style={{ padding: '8px 0' }}>{projet.nom}</td>
-                  <td style={{ padding: '8px 0' }}>{projet.typeSource}</td>
-                  <td style={{ padding: '8px 0' }}>{projet.derniereExecution || '—'}</td>
-                  <td style={{ padding: '8px 0' }}>{projet.statut}</td>
+                <tr key={projet.projetId} className="row">
+                  <td className="td">{projet.nom}</td>
+                  <td className="td">{projet.typeSource}</td>
+                  <td className="td">{projet.derniereExecution || '—'}</td>
+                  <td className="td">{projet.statut}</td>
                 </tr>
               ))}
             </tbody>

@@ -1,19 +1,19 @@
 package com.testplatform.test_automation_platform.service;
 
+import java.io.IOException;
+import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
+
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
 import com.testplatform.test_automation_platform.entity.Projet;
 import com.testplatform.test_automation_platform.entity.Utilisateur;
 import com.testplatform.test_automation_platform.enums.StatutProjet;
-import com.testplatform.test_automation_platform.repository.ProjetRepository;
 import com.testplatform.test_automation_platform.enums.TypeSource;
-
-import org.springframework.web.multipart.MultipartFile;
-import java.io.IOException;
-import java.time.LocalDateTime;
-import org.springframework.stereotype.Service;
-import java.nio.file.Paths;
-import java.io.IOException;
-import java.util.UUID;
-import java.util.List;
+import com.testplatform.test_automation_platform.repository.ProjetRepository;
 
 @Service
 public class ProjetService {

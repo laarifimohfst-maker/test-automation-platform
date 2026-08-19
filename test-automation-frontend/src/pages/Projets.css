@@ -1,0 +1,247 @@
+.page {
+  padding: 32px;
+}
+
+/* --- Barre d'outils --- */
+.toolbar {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.searchWrapper {
+  position: relative;
+  flex: 1;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9ca3af;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 10px 12px 10px 38px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.select {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  font-size: 14px;
+  background-color: #ffffff;
+  cursor: pointer;
+}
+
+/* --- Tableau --- */
+.tableCard {
+  background-color: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.headerRow {
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.th {
+  text-align: left;
+  padding: 14px 16px;
+  color: #6b7280;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.row {
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.td {
+  padding: 14px 16px;
+  vertical-align: top;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 24px;
+  color: #9ca3af;
+}
+
+.errorState {
+  text-align: center;
+  padding: 24px;
+  color: #dc2626;
+}
+
+.projetCell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+
+.projetNom {
+  font-weight: 600;
+}
+
+.projetDescription {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+/* --- Badges de statut --- */
+.badge {
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.badgeImporte {
+  background-color: #dcfce7;
+  color: #16a34a;
+}
+
+.badgeErreur {
+  background-color: #fee2e2;
+  color: #dc2626;
+}
+
+.badgeSupprime {
+  background-color: #f3f4f6;
+  color: #6b7280;
+}
+
+/* --- Actions --- */
+.actions {
+  display: flex;
+  gap: 10px;
+}
+
+.iconEdit {
+  cursor: pointer;
+  color: #6b7280;
+}
+
+.iconDelete {
+  cursor: pointer;
+  color: #dc2626;
+}
+
+/* --- Pied de tableau / pagination --- */
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.footerText {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.pagination {
+  display: flex;
+  gap: 6px;
+}
+
+.pageBtn {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+  background-color: #ffffff;
+  color: #374151;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.pageBtnActive {
+  background-color: #7c3aed;
+  color: #ffffff;
+}
+
+.pageBtnDisabled {
+  color: #d1d5db;
+  cursor: not-allowed;
+}
+
+/* --- Modale (renommage) --- */
+.modaleOverlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+
+.modaleBox {
+  background-color: #ffffff;
+  border-radius: 10px;
+  padding: 24px;
+  width: 400px;
+}
+
+.modaleHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.modaleTitle {
+  margin: 0;
+  font-size: 16px;
+}
+
+.modaleInput {
+  width: 100%;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+  font-size: 14px;
+  box-sizing: border-box;
+  margin-bottom: 16px;
+}
+
+.modaleButton {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  background-color: #7c3aed;
+  color: #ffffff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.modaleButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
