@@ -5,8 +5,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -27,6 +29,8 @@ public class MavenExecutionService {
             String cheminProjet,
             ConfigurationTest configuration)
             throws IOException, InterruptedException {
+
+        nettoyerAnciensRapports(cheminProjet);
 
         int codeRetour = 0;
 
@@ -94,6 +98,49 @@ public class MavenExecutionService {
         }
 
         return codeRetour;
+    }
+
+    private void nettoyerAnciensRapports(String cheminProjet)
+            throws IOException {
+
+        nettoyerFichiersXml(
+                Paths.get(
+                        cheminProjet,
+                        "target",
+                        "surefire-reports"
+                )
+        );
+
+        nettoyerFichiersXml(
+                Paths.get(
+                        cheminProjet,
+                        "target",
+                        "failsafe-reports"
+                )
+        );
+    }
+
+    private void nettoyerFichiersXml(Path dossierRapports)
+            throws IOException {
+
+        File dossier = dossierRapports.toFile();
+
+        if (!dossier.isDirectory()) {
+            return;
+        }
+
+        File[] fichiersXml = dossier.listFiles(
+                (dir, nom) -> nom.startsWith("TEST-")
+                        && nom.endsWith(".xml")
+        );
+
+        if (fichiersXml == null) {
+            return;
+        }
+
+        for (File fichierXml : fichiersXml) {
+            Files.deleteIfExists(fichierXml.toPath());
+        }
     }
 
     public int executerCommande(

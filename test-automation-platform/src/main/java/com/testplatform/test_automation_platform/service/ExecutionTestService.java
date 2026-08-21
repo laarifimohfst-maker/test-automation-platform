@@ -5,7 +5,11 @@ import com.testplatform.test_automation_platform.entity.ExecutionTest;
 import com.testplatform.test_automation_platform.entity.Projet;
 import com.testplatform.test_automation_platform.enums.StatutExecution;
 import com.testplatform.test_automation_platform.repository.ExecutionTestRepository;
+import com.testplatform.test_automation_platform.repository.NotificationRepository;
+import com.testplatform.test_automation_platform.repository.RapportRepository;
+import com.testplatform.test_automation_platform.repository.ResultatTestRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -17,17 +21,26 @@ public class ExecutionTestService {
     private final MavenExecutionService mavenExecutionService;
     private final ResultatTestService resultatTestService;
     private final NotificationService notificationService;
+    private final ResultatTestRepository resultatTestRepository;
+    private final RapportRepository rapportRepository;
+    private final NotificationRepository notificationRepository;
 
     public ExecutionTestService(
             ExecutionTestRepository executionTestRepository,
             MavenExecutionService mavenExecutionService,
             ResultatTestService resultatTestService,
-            NotificationService notificationService) {
+            NotificationService notificationService,
+            ResultatTestRepository resultatTestRepository,
+            RapportRepository rapportRepository,
+            NotificationRepository notificationRepository) {
 
         this.executionTestRepository = executionTestRepository;
         this.mavenExecutionService = mavenExecutionService;
         this.resultatTestService = resultatTestService;
         this.notificationService = notificationService;
+        this.resultatTestRepository = resultatTestRepository;
+        this.rapportRepository = rapportRepository;
+        this.notificationRepository = notificationRepository;
     }
 
     public ExecutionTest creerExecution(
@@ -90,6 +103,7 @@ public class ExecutionTestService {
         return executionTestRepository.save(execution);
     }
 
+    @Transactional
     public void supprimerExecution(Long id) {
 
         if (!executionTestRepository.existsById(id)) {
@@ -97,6 +111,9 @@ public class ExecutionTestService {
                     "Exécution des tests introuvable.");
         }
 
+        notificationRepository.deleteByExecutionId(id);
+        rapportRepository.deleteByExecutionId(id);
+        resultatTestRepository.deleteByExecutionId(id);
         executionTestRepository.deleteById(id);
     }
 

@@ -1,6 +1,7 @@
 package com.testplatform.test_automation_platform.service;
 
 import com.testplatform.test_automation_platform.entity.ExecutionTest;
+import com.testplatform.test_automation_platform.entity.ConfigurationTest;
 import com.testplatform.test_automation_platform.entity.ResultatTest;
 import com.testplatform.test_automation_platform.enums.StatutTest;
 import com.testplatform.test_automation_platform.enums.TypeTest;
@@ -75,28 +76,35 @@ public class ResultatTestService {
             ExecutionTest executionTest) {
 
         List<ResultatTest> resultats = new ArrayList<>();
+        ConfigurationTest configuration =
+                executionTest.getConfigurationTest();
 
-        resultats.addAll(
-                lireDossierRapports(
-                        Paths.get(
-                                cheminProjet,
-                                "target",
-                                "surefire-reports"
-                        ),
-                        executionTest
-                )
-        );
+        if (configuration.isTestsUnitaires()) {
+            resultats.addAll(
+                    lireDossierRapports(
+                            Paths.get(
+                                    cheminProjet,
+                                    "target",
+                                    "surefire-reports"
+                            ),
+                            executionTest
+                    )
+            );
+        }
 
-        resultats.addAll(
-                lireDossierRapports(
-                        Paths.get(
-                                cheminProjet,
-                                "target",
-                                "failsafe-reports"
-                        ),
-                        executionTest
-                )
-        );
+        if (configuration.isTestsIntegration()
+                || configuration.isTestsApi()) {
+            resultats.addAll(
+                    lireDossierRapports(
+                            Paths.get(
+                                    cheminProjet,
+                                    "target",
+                                    "failsafe-reports"
+                            ),
+                            executionTest
+                    )
+            );
+        }
 
         return resultats;
     }
@@ -181,10 +189,18 @@ public class ResultatTestService {
                     statut = StatutTest.REUSSI;
                 }
 
+                TypeTest type = determinerType(classname);
+
+                if (!typeEstSelectionne(
+                        type,
+                        executionTest.getConfigurationTest())) {
+                    continue;
+                }
+
                 ResultatTest resultat = ResultatTest.builder()
                         .executionTest(executionTest)
                         .nomTest(nomTest)
-                        .type(determinerType(classname))
+                        .type(type)
                         .statut(statut)
                         .duree(duree)
                         .message(message)
@@ -202,6 +218,17 @@ public class ResultatTestService {
         }
 
         return resultats;
+    }
+
+    private boolean typeEstSelectionne(
+            TypeTest type,
+            ConfigurationTest configuration) {
+
+        return switch (type) {
+            case UNITAIRE -> configuration.isTestsUnitaires();
+            case INTEGRATION -> configuration.isTestsIntegration();
+            case API -> configuration.isTestsApi();
+        };
     }
 
     private long convertirDureeEnMillisecondes(String valeur) {

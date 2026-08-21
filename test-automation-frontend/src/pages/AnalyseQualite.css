@@ -1,0 +1,493 @@
+.aq-page {
+  padding: 32px;
+}
+
+/* ==========================
+   Cartes générales
+========================== */
+
+.aq-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 20px;
+}
+
+.aq-card-title {
+  margin: 0 0 20px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+}
+
+/* ==========================
+   Zone lancement analyse
+========================== */
+
+.aq-launch-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  align-items: center;
+}
+
+.aq-label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 13px;
+  color: #374151;
+  font-weight: 500;
+}
+
+.aq-select {
+  width: 100%;
+  max-width: 500px;
+  padding: 11px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #ffffff;
+  font-size: 14px;
+  color: #111827;
+  cursor: pointer;
+}
+
+.aq-select:focus {
+  outline: none;
+  border-color: #38bdf8;
+}
+
+.aq-project-info {
+  margin-top: 15px;
+  max-width: 500px;
+  padding: 14px;
+
+  background: #f9fafb;
+  border: 1px solid #f3f4f6;
+  border-radius: 9px;
+
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.aq-project-avatar {
+  width: 40px;
+  height: 40px;
+
+  border-radius: 8px;
+
+  background: #e0f2fe;
+  color: #0284c7;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-weight: 700;
+}
+
+.aq-project-info strong {
+  display: block;
+  font-size: 14px;
+  color: #111827;
+}
+
+.aq-project-info span {
+  display: block;
+  margin-top: 4px;
+
+  color: #6b7280;
+  font-size: 12px;
+}
+
+/* ==========================
+   Bouton lancer analyse
+========================== */
+
+.aq-launch-action {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.aq-launch-button {
+  width: 100%;
+  max-width: 380px;
+
+  padding: 12px 20px;
+
+  border: none;
+  border-radius: 8px;
+
+  background: #0284c7;
+  color: #ffffff;
+
+  cursor: pointer;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  transition: background-color 0.2s;
+}
+
+.aq-launch-button:hover:not(:disabled) {
+  background: #0369a1;
+}
+
+.aq-launch-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.aq-launch-action span {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+/* ==========================
+   Messages
+========================== */
+
+.aq-error {
+  margin-top: 14px;
+  padding: 10px 12px;
+
+  border-radius: 6px;
+
+  background: #fef2f2;
+  color: #dc2626;
+
+  font-size: 13px;
+}
+
+.aq-success {
+  margin-top: 14px;
+  padding: 10px 12px;
+
+  border-radius: 6px;
+
+  background: #f0fdf4;
+  color: #16a34a;
+
+  font-size: 13px;
+}
+
+/* ==========================
+   Cartes métriques
+========================== */
+
+.aq-metrics {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.aq-metric-card {
+  background: #ffffff;
+
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+
+  padding: 18px;
+
+  min-height: 90px;
+}
+
+.aq-metric-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  color: #374151;
+  font-size: 13px;
+
+  margin-bottom: 12px;
+}
+
+.aq-metric-card strong {
+  display: block;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+/* ==========================
+   Couleurs métriques
+========================== */
+
+.aq-value-green {
+  color: #16a34a;
+}
+
+.aq-value-red {
+  color: #dc2626;
+}
+
+.aq-value-orange {
+  color: #d97706;
+}
+
+.aq-value-purple {
+  color: #0891b2;
+}
+
+.aq-value-blue {
+  color: #2563eb;
+}
+
+.aq-green {
+  color: #16a34a;
+}
+
+.aq-red {
+  color: #dc2626;
+}
+
+.aq-orange {
+  color: #d97706;
+}
+
+.aq-purple {
+  color: #0891b2;
+}
+
+.aq-blue {
+  color: #2563eb;
+}
+
+/* ==========================
+   Dernière analyse
+========================== */
+
+.aq-last-analysis {
+  margin-bottom: 20px;
+
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.aq-last-analysis strong {
+  color: #374151;
+  margin-left: 5px;
+}
+
+/* ==========================
+   Tableau dernières analyses
+========================== */
+
+.aq-table-wrapper {
+  border: 1px solid #e5e7eb;
+  border-radius: 9px;
+
+  overflow-x: auto;
+}
+
+.aq-table {
+  width: 100%;
+
+  border-collapse: collapse;
+
+  min-width: 1000px;
+}
+
+.aq-table th {
+  text-align: left;
+
+  padding: 13px 14px;
+
+  color: #6b7280;
+
+  font-size: 12px;
+  font-weight: 600;
+
+  background: #ffffff;
+
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.aq-table td {
+  padding: 13px 14px;
+
+  color: #374151;
+
+  font-size: 12px;
+
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.aq-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.aq-table tbody tr:hover {
+  background: #fafafa;
+}
+
+/* ==========================
+   Badges
+========================== */
+
+.aq-badge {
+  display: inline-block;
+
+  padding: 4px 9px;
+
+  border-radius: 5px;
+
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.aq-badge-success {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.aq-badge-error {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.aq-badge-warning {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.aq-badge-neutral {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+/* ==========================
+   Colonne Action
+========================== */
+
+.aq-action-column {
+  width: 155px;
+  text-align: center !important;
+}
+
+.aq-action-buttons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.aq-report-button,
+.aq-delete-button {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  cursor: pointer;
+  transition:
+    background-color 0.2s,
+    color 0.2s;
+}
+
+.aq-report-button {
+  width: auto;
+  padding: 0 10px;
+  gap: 6px;
+  color: #0284c7;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.aq-report-button:hover:not(:disabled) {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+.aq-report-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ==========================
+   Bouton suppression
+========================== */
+
+.aq-delete-button {
+  color: #dc2626;
+}
+
+.aq-delete-button:hover:not(:disabled) {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.aq-delete-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ==========================
+   État vide / chargement
+========================== */
+
+.aq-empty {
+  padding: 26px;
+
+  text-align: center;
+
+  color: #9ca3af;
+  font-size: 13px;
+}
+
+/* ==========================
+   Responsive
+========================== */
+
+@media (max-width: 1200px) {
+  .aq-metrics {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .aq-launch-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .aq-launch-action {
+    align-items: flex-start;
+  }
+
+  .aq-launch-button {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 700px) {
+  .aq-page {
+    padding: 20px;
+  }
+
+  .aq-metrics {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .aq-card {
+    padding: 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  .aq-metrics {
+    grid-template-columns: 1fr;
+  }
+}

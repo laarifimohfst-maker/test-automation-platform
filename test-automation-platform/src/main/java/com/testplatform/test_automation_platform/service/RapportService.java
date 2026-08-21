@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import com.testplatform.test_automation_platform.entity.AnalyseQualite;
 import com.testplatform.test_automation_platform.repository.AnalyseQualiteRepository;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.web.util.HtmlUtils;
 import java.nio.charset.StandardCharsets;
 
 import java.time.LocalDateTime;
@@ -114,6 +115,14 @@ public class RapportService {
             throw new RuntimeException("Cette exécution n'est pas une exécution de tests");
         }
 
+        Rapport rapportExistant = rapportRepository
+                .findByExecution_Id(executionId)
+                .orElse(null);
+
+        if (rapportExistant != null) {
+            return rapportExistant;
+        }
+
         List<ResultatTest> resultats = resultatTestRepository.findByExecutionTest_Id(executionId);
 
         if (resultats.isEmpty()) {
@@ -124,7 +133,9 @@ public class RapportService {
         long reussis = resultats.stream().filter(r -> r.getStatut() == StatutTest.REUSSI).count();
         long echoues = resultats.stream().filter(r -> r.getStatut() == StatutTest.ECHOUE).count();
         long ignores = resultats.stream().filter(r -> r.getStatut() == StatutTest.IGNORED).count();
-        long dureeTotale = resultats.stream().mapToLong(ResultatTest::getDuree).sum();
+        long dureeTotale = resultats.stream()
+                .mapToLong(r -> r.getDuree() != null ? r.getDuree() : 0L)
+                .sum();
 
         Map<TypeTest, Long> parType = resultats.stream()
                 .collect(Collectors.groupingBy(ResultatTest::getType, Collectors.counting()));
@@ -195,6 +206,14 @@ public class RapportService {
 
         if (!(execution instanceof ExecutionAnalyseQualite)) {
             throw new RuntimeException("Cette exécution n'est pas une exécution d'analyse qualité");
+        }
+
+        Rapport rapportExistant = rapportRepository
+                .findByExecution_Id(executionId)
+                .orElse(null);
+
+        if (rapportExistant != null) {
+            return rapportExistant;
         }
 
         AnalyseQualite analyse = analyseQualiteRepository.findByExecutionAnalyseQualite_Id(executionId)
@@ -294,9 +313,9 @@ public class RapportService {
             StringBuilder sb = new StringBuilder();
             sb.append("<table class=\"echecs\"><tr><th>Nom du test</th><th>Type</th><th>Message</th></tr>");
             for (Map<String, Object> t : testsEchoues) {
-                sb.append("<tr><td>").append(t.get("nomTest")).append("</td>")
-                        .append("<td>").append(t.get("type")).append("</td>")
-                        .append("<td>").append(t.get("message")).append("</td></tr>");
+                sb.append("<tr><td>").append(echapperHtml(t.get("nomTest"))).append("</td>")
+                        .append("<td>").append(echapperHtml(t.get("type"))).append("</td>")
+                        .append("<td>").append(echapperHtml(t.get("message"))).append("</td></tr>");
             }
             sb.append("</table>");
             blocEchecs = sb.toString();
@@ -350,11 +369,11 @@ public class RapportService {
             StringBuilder sb = new StringBuilder();
             sb.append("<table class=\"echecs\"><tr><th>Fichier</th><th>Ligne</th><th>Type</th><th>Sévérité</th><th>Message</th></tr>");
             for (Map<String, Object> issue : issuesList) {
-                sb.append("<tr><td>").append(issue.get("fichier")).append("</td>")
-                        .append("<td>").append(issue.get("ligne")).append("</td>")
-                        .append("<td>").append(issue.get("type")).append("</td>")
-                        .append("<td>").append(issue.get("severite")).append("</td>")
-                        .append("<td>").append(issue.get("message")).append("</td></tr>");
+                sb.append("<tr><td>").append(echapperHtml(issue.get("fichier"))).append("</td>")
+                        .append("<td>").append(echapperHtml(issue.get("ligne"))).append("</td>")
+                        .append("<td>").append(echapperHtml(issue.get("type"))).append("</td>")
+                        .append("<td>").append(echapperHtml(issue.get("severite"))).append("</td>")
+                        .append("<td>").append(echapperHtml(issue.get("message"))).append("</td></tr>");
             }
             sb.append("</table>");
             blocIssues = sb.toString();
@@ -373,5 +392,11 @@ public class RapportService {
                 .replace("${qualityGateStatus}", String.valueOf(analyse.getQualityGateStatus()))
                 .replace("${qualityGateClass}", qualityGateClass)
                 .replace("${blocIssues}", blocIssues);
+    }
+
+    private String echapperHtml(Object valeur) {
+        return valeur == null
+                ? ""
+                : HtmlUtils.htmlEscape(String.valueOf(valeur), StandardCharsets.UTF_8.name());
     }
 }

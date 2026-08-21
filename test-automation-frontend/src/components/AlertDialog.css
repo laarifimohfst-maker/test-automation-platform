@@ -1,0 +1,209 @@
+.app-alert-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(15, 23, 42, 0.42);
+  backdrop-filter: blur(3px);
+  animation: app-alert-fade-in 160ms ease-out;
+}
+
+.app-alert {
+  position: relative;
+  width: min(430px, 100%);
+  overflow: hidden;
+  padding: 26px;
+  border: 1px solid rgba(203, 213, 225, 0.8);
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.22);
+  animation: app-alert-pop-in 180ms ease-out;
+}
+
+.app-alert::before {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 4px;
+  content: '';
+  background: #0284c7;
+}
+
+.app-alert-danger::before,
+.app-alert-error::before {
+  background: #ef4444;
+}
+
+.app-alert-success::before {
+  background: #22c55e;
+}
+
+.app-alert-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  display: inline-grid;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  place-items: center;
+  border: 0;
+  border-radius: 8px;
+  color: #64748b;
+  background: transparent;
+  cursor: pointer;
+  transition: color 160ms ease, background-color 160ms ease;
+}
+
+.app-alert-close:hover {
+  color: #1e293b;
+  background: #f1f5f9;
+}
+
+.app-alert-content {
+  display: grid;
+  grid-template-columns: 48px 1fr;
+  gap: 15px;
+  padding-right: 20px;
+}
+
+.app-alert-icon {
+  display: inline-grid;
+  width: 48px;
+  height: 48px;
+  place-items: center;
+  border-radius: 14px;
+  color: #0284c7;
+  background: #e0f2fe;
+}
+
+.app-alert-danger .app-alert-icon,
+.app-alert-error .app-alert-icon {
+  color: #dc2626;
+  background: #fee2e2;
+}
+
+.app-alert-success .app-alert-icon {
+  color: #16a34a;
+  background: #dcfce7;
+}
+
+.app-alert h2 {
+  margin: 2px 0 7px;
+  color: #0f172a;
+  font-size: 18px;
+  line-height: 1.3;
+}
+
+.app-alert p {
+  margin: 0;
+  color: #64748b;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.app-alert-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.app-alert-button {
+  min-width: 105px;
+  padding: 10px 16px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  font-size: 14px;
+  font-weight: 650;
+  cursor: pointer;
+  transition: transform 160ms ease, box-shadow 160ms ease,
+    background-color 160ms ease;
+}
+
+.app-alert-button:hover {
+  transform: translateY(-1px);
+}
+
+.app-alert-button:focus-visible,
+.app-alert-close:focus-visible {
+  outline: 3px solid rgba(56, 189, 248, 0.3);
+  outline-offset: 2px;
+}
+
+.app-alert-button-secondary {
+  border-color: #dbe3ea;
+  color: #334155;
+  background: #ffffff;
+}
+
+.app-alert-button-secondary:hover {
+  background: #f8fafc;
+}
+
+.app-alert-button-primary {
+  color: #ffffff;
+  background: #0284c7;
+  box-shadow: 0 7px 16px rgba(2, 132, 199, 0.2);
+}
+
+.app-alert-danger .app-alert-button-primary,
+.app-alert-error .app-alert-button-primary {
+  background: #dc2626;
+  box-shadow: 0 7px 16px rgba(220, 38, 38, 0.2);
+}
+
+.app-alert-success .app-alert-button-primary {
+  background: #16a34a;
+  box-shadow: 0 7px 16px rgba(22, 163, 74, 0.2);
+}
+
+@keyframes app-alert-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes app-alert-pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (max-width: 520px) {
+  .app-alert {
+    padding: 22px 18px 18px;
+    border-radius: 14px;
+  }
+
+  .app-alert-content {
+    grid-template-columns: 42px 1fr;
+    gap: 12px;
+  }
+
+  .app-alert-icon {
+    width: 42px;
+    height: 42px;
+  }
+
+  .app-alert-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .app-alert-button:only-child {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-alert-overlay,
+  .app-alert {
+    animation: none;
+  }
+}

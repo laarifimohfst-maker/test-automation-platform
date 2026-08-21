@@ -37,12 +37,12 @@ function Dashboard() {
   return (
     <div className="container">
       <div className="statsRow">
-        <StatCard titre="Projets" valeur={donnees.nbProjets} couleur="#7c3aed" fondIcone="#ede9fe" icone={<Folder size={20} />} />
+        <StatCard titre="Projets" valeur={donnees.nbProjets} couleur="#0284c7" fondIcone="#e0f2fe" icone={<Folder size={20} />} />
         <StatCard titre="Exécutions" valeur={donnees.nbExecutions} couleur="#16a34a" fondIcone="#dcfce7" icone={<Play size={20} />} />
         <StatCard titre="Tests réussis" valeur={donnees.testsReussis} couleur="#16a34a" fondIcone="#dcfce7" icone={<CheckCircle size={20} />} />
         <StatCard titre="Tests échoués" valeur={donnees.testsEchoues} couleur="#dc2626" fondIcone="#fee2e2" icone={<XCircle size={20} />} />
         <StatCard titre="Quality Gates OK" valeur={donnees.gatesOk} couleur="#d97706" fondIcone="#fef3c7" icone={<AlertCircle size={20} />} />
-        <StatCard titre="Quality Gates KO" valeur={donnees.gatesKo} couleur="#7c3aed" fondIcone="#ede9fe" icone={<Shield size={20} />} />
+        <StatCard titre="Quality Gates KO" valeur={donnees.gatesKo} couleur="#0284c7" fondIcone="#e0f2fe" icone={<Shield size={20} />} />
       </div>
 
       <div className="chartsRow">
@@ -54,7 +54,7 @@ function Dashboard() {
               <XAxis dataKey="date" />
               <YAxis allowDecimals={false} />
               <Tooltip />
-              <Line type="monotone" dataKey="total" stroke="#7c3aed" strokeWidth={2} />
+              <Line type="monotone" dataKey="total" stroke="#0284c7" strokeWidth={2} />
             </LineChart>
           </ResponsiveContainer>
         </div>

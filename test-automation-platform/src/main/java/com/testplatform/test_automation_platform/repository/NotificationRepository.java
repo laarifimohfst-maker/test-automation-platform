@@ -1,14 +1,33 @@
 package com.testplatform.test_automation_platform.repository;
 
-import com.testplatform.test_automation_platform.entity.Notification;
-import com.testplatform.test_automation_platform.entity.Utilisateur;
-import org.springframework.data.jpa.repository.JpaRepository;
-
 import java.util.List;
 
-public interface NotificationRepository extends JpaRepository<Notification, Long> {
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
-    List<Notification> findByUtilisateur(Utilisateur utilisateur);
+import com.testplatform.test_automation_platform.entity.Notification;
+import com.testplatform.test_automation_platform.entity.Utilisateur;
 
-    List<Notification> findByUtilisateurAndLueFalse(Utilisateur utilisateur);
+public interface NotificationRepository
+        extends JpaRepository<Notification, Long> {
+
+    List<Notification> findByUtilisateur(
+            Utilisateur utilisateur);
+
+    List<Notification> findByUtilisateurAndLueFalse(
+            Utilisateur utilisateur);
+
+    /*
+     * Supprime toutes les notifications
+     * liées à une exécution.
+     */
+    @Modifying
+    @Query(
+        value = "DELETE FROM notifications WHERE execution_id = :executionId",
+        nativeQuery = true
+    )
+    void deleteByExecutionId(
+            @Param("executionId") Long executionId);
 }

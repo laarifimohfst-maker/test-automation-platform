@@ -6,11 +6,14 @@ import {
   supprimerConfiguration,
 } from '../services/configurationTestService';
 import { Trash2 } from 'lucide-react';
+import { useAlertDialog } from '../components/AlertDialogContext';
 import './ConfigurationTest.css';
 
 const UTILISATEUR_ID = 1; // en dur pour l'instant, comme le reste de l'app
 
 function ConfigurationTest() {
+  const { demanderConfirmation, afficherAlerte } = useAlertDialog();
+
   // --- Liste des projets pour le sélecteur ---
   const [projets, setProjets] = useState([]);
   const [projetSelectionneId, setProjetSelectionneId] = useState('');
@@ -76,15 +79,26 @@ function ConfigurationTest() {
       .finally(() => setEnCours(false));
   };
 
-  const gererSuppression = (config) => {
-    const confirme = window.confirm('Supprimer cette configuration ?');
+  const gererSuppression = async (config) => {
+    const confirme = await demanderConfirmation({
+      titre: 'Supprimer la configuration ?',
+      message:
+        'Cette configuration de tests sera retirée définitivement du projet.',
+      texteConfirmation: 'Supprimer',
+    });
+
     if (!confirme) return;
 
     supprimerConfiguration(config.id)
       .then(() => chargerConfigurations(projetSelectionneId))
       .catch((err) => {
         console.error('Erreur suppression configuration', err);
-        alert('Échec de la suppression.');
+        afficherAlerte({
+          variante: 'error',
+          titre: 'Suppression impossible',
+          message: 'La configuration n’a pas pu être supprimée.',
+          texteConfirmation: 'Fermer',
+        });
       });
   };
 

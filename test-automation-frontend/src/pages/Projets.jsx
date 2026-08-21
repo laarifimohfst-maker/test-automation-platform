@@ -5,15 +5,18 @@ import {
   supprimerProjet,
   modifierProjet,
 } from '../services/projetService';
+import { useAlertDialog } from '../components/AlertDialogContext';
 import './Projets.css';
 
 const PROJETS_PAR_PAGE = 5;
 const UTILISATEUR_ID = 1; // en dur pour l'instant, comme dans Dashboard.jsx
 
 // Palette de couleurs piochée selon l'id du projet, pour l'avatar coloré
-const PALETTE = ['#ede9fe', '#dcfce7', '#fef3c7', '#dbeafe', '#fee2e2'];
+const PALETTE = ['#e0f2fe', '#dcfce7', '#fef3c7', '#dbeafe', '#fee2e2'];
 
 function Projets() {
+  const { demanderConfirmation, afficherAlerte } = useAlertDialog();
+
   const [projets, setProjets] = useState([]);
   const [chargement, setChargement] = useState(true);
   const [erreur, setErreur] = useState(null);
@@ -49,15 +52,25 @@ function Projets() {
   }, []);
 
   // --- Suppression ---
-  const gererSuppression = (projet) => {
-    const confirme = window.confirm(`Supprimer le projet "${projet.nom}" ? Cette action est irréversible.`);
+  const gererSuppression = async (projet) => {
+    const confirme = await demanderConfirmation({
+      titre: 'Supprimer ce projet ?',
+      message: `Le projet « ${projet.nom} » et ses données associées seront supprimés définitivement.`,
+      texteConfirmation: 'Supprimer',
+    });
+
     if (!confirme) return;
 
     supprimerProjet(projet.id)
       .then(() => charger())
       .catch((err) => {
         console.error('Erreur suppression', err);
-        alert('Échec de la suppression du projet.');
+        afficherAlerte({
+          variante: 'error',
+          titre: 'Suppression impossible',
+          message: 'Le projet n’a pas pu être supprimé.',
+          texteConfirmation: 'Fermer',
+        });
       });
   };
 
@@ -85,7 +98,12 @@ function Projets() {
       })
       .catch((err) => {
         console.error('Erreur modification', err);
-        alert('Échec de la modification du projet.');
+        afficherAlerte({
+          variante: 'error',
+          titre: 'Modification impossible',
+          message: 'Le nom du projet n’a pas pu être modifié.',
+          texteConfirmation: 'Fermer',
+        });
       })
       .finally(() => setEnCours(false));
   };
@@ -121,26 +139,26 @@ function Projets() {
   return (
     <div className="page">
       {/* --- Barre d'outils --- */}
-      <div className="toolbar">
-        <div className="searchWrapper">
-          <Search size={18} className="searchIcon" />
+      <div className="projetsToolbar">
+        <div className="projetsSearchWrapper">
+          <Search size={18} className="projetsSearchIcon" />
           <input
             type="text"
             placeholder="Rechercher un projet..."
             value={recherche}
             onChange={(e) => setRecherche(e.target.value)}
-            className="searchInput"
+            className="projetsSearchInput"
           />
         </div>
 
-        <select value={filtreStatut} onChange={(e) => setFiltreStatut(e.target.value)} className="select">
+        <select value={filtreStatut} onChange={(e) => setFiltreStatut(e.target.value)} className="projetsSelect">
           <option value="Tous">Statut: Tous</option>
           <option value="IMPORTE">Importé</option>
           <option value="EN_ERREUR">En erreur</option>
           <option value="SUPPRIME">Supprimé</option>
         </select>
 
-        <select value={tri} onChange={(e) => setTri(e.target.value)} className="select">
+        <select value={tri} onChange={(e) => setTri(e.target.value)} className="projetsSelect">
           <option value="recent">Trier par: Plus récent</option>
           <option value="nom">Trier par: Nom</option>
         </select>

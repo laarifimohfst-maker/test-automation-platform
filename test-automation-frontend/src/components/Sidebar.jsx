@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, Folder, Settings, Play, BarChart2,
-  ShieldCheck, FileText, History, Bell, User,
+  ShieldCheck, User,
 } from 'lucide-react';
 
 function Sidebar() {
@@ -16,21 +16,39 @@ function Sidebar() {
     { texte: 'Exécutions', chemin: '/executions', icone: Play },
     { texte: 'Résultats des tests', chemin: '/resultats', icone: BarChart2 },
     { texte: 'Analyse de qualité', chemin: '/qualite', icone: ShieldCheck },
-    { texte: 'Rapports', chemin: '/rapports', icone: FileText },
-    { texte: 'Historique', chemin: '/historique', icone: History },
-    { texte: 'Notifications', chemin: '/notifications', icone: Bell },
     { texte: 'Mon profil', chemin: '/profil', icone: User },
   ];
 
   return (
-    <aside style={{ width: '260px', height: '100vh', backgroundColor: '#ffffff', borderRight: '1px solid #e5e7eb' }}>
-      <div style={{ padding: '24px 20px', borderBottom: '1px solid #f3f4f6' }}>
-  <h1 style={{ fontSize: '17px', fontWeight: '700', color: '#111827', margin: 0, lineHeight: '1.3' }}>
-    Test Automation<br />Platform
-  </h1>
-</div>
+    <aside
+      style={{
+        width: '260px',
+        flex: '0 0 260px',
+        minHeight: '100vh',
+        backgroundColor: '#ffffff',
+        boxSizing: 'border-box',
+      }}
+    >
+      <div
+        style={{
+          padding: '14px 20px',
+          borderBottom: '1px solid #e8eef3',
+        }}
+      >
+        <h1
+          style={{
+            fontSize: '15px',
+            fontWeight: '700',
+            color: '#111827',
+            margin: 0,
+            lineHeight: '1.25',
+          }}
+        >
+          Test Automation<br />Platform
+        </h1>
+      </div>
 
-      <nav>
+      <nav style={{ paddingTop: '12px' }}>
         {liens.map((lien) => {
           const Icone = lien.icone;
           const estActif = location.pathname === lien.chemin;
@@ -49,8 +67,12 @@ function Sidebar() {
                 padding: '12px 20px',
                 margin: '0 10px',
                 borderRadius: '8px',
-                color: estActif ? '#7c3aed' : '#374151',
-                backgroundColor: estActif ? '#f3e8ff' : estSurvole ? '#f9fafb' : 'transparent',
+                color: estActif ? '#0284c7' : '#475569',
+                backgroundColor: estActif
+                  ? '#e0f2fe'
+                  : estSurvole
+                    ? '#f1f5f9'
+                    : 'transparent',
                 textDecoration: 'none',
                 fontWeight: estActif ? 'bold' : 'normal',
               }}

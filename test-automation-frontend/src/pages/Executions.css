@@ -1,0 +1,259 @@
+.page {
+  padding: 32px;
+}
+
+.card {
+  background-color: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.cardTitre {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 18px 0;
+  color: #111827;
+}
+
+.executionGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.fieldLabel {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+}
+
+.select {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  font-size: 14px;
+  background-color: #ffffff;
+  cursor: pointer;
+}
+
+.badgesRow {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.typeBadge {
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  border: 1px solid #e5e7eb;
+}
+
+.typeBadgeActive {
+  background-color: #dcfce7;
+  color: #16a34a;
+}
+
+.typeBadgeInactive {
+  background-color: #f9fafb;
+  color: #6b7280;
+}
+
+.executionFooterActions {
+  margin-top: 22px;
+}
+
+.boutonPrincipal {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border: none;
+  border-radius: 8px;
+  background-color: #0284c7;
+  color: #ffffff;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.boutonPrincipal:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.messageErreur {
+  color: #dc2626;
+  font-size: 13px;
+  margin-top: 12px;
+}
+
+.messageSucces {
+  color: #16a34a;
+  font-size: 13px;
+  margin-top: 12px;
+}
+
+/* Tableau */
+.tableCard {
+  background-color: #ffffff;
+  border-radius: 12px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.headerRow {
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.th {
+  text-align: left;
+  padding: 14px 16px;
+  color: #6b7280;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.row {
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.td {
+  padding: 14px 16px;
+  vertical-align: top;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 24px;
+  color: #9ca3af;
+}
+
+.badge {
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.badgeSucces {
+  background-color: #dcfce7;
+  color: #16a34a;
+}
+
+.badgeEchec {
+  background-color: #fee2e2;
+  color: #dc2626;
+}
+
+.badgeWarning {
+  background-color: #fef3c7;
+  color: #d97706;
+}
+
+.badgeNeutral {
+  background-color: #f3f4f6;
+  color: #6b7280;
+}
+
+.executionActions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.executionActionButton {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    background-color 0.2s,
+    color 0.2s;
+}
+
+.executionViewButton {
+  color: #374151;
+}
+
+.executionViewButton:hover {
+  color: #0284c7;
+  background-color: #e0f2fe;
+}
+
+.executionDeleteButton {
+  color: #dc2626;
+}
+
+.executionDeleteButton:hover:not(:disabled) {
+  color: #b91c1c;
+  background-color: #fee2e2;
+}
+
+.executionActionButton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Modale */
+.modaleOverlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+
+.modaleLarge {
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 24px;
+  width: 900px;
+  max-width: calc(100vw - 40px);
+  max-height: calc(100vh - 40px);
+  overflow: auto;
+}
+
+.modaleHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.modaleTitle {
+  margin: 0;
+  font-size: 18px;
+}
+
+.detailBlock {
+  margin-bottom: 20px;
+}
+
+.detailBlock p {
+  margin: 6px 0;
+}
+
+@media (max-width: 900px) {
+  .executionGrid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -3,18 +3,22 @@
 }
 
 /* --- Barre d'outils --- */
-.toolbar {
-  display: flex;
+.projetsToolbar {
+  display: grid;
+  grid-template-columns:
+    minmax(340px, 1.4fr)
+    minmax(190px, 0.55fr)
+    minmax(230px, 0.7fr);
   gap: 12px;
   margin-bottom: 16px;
 }
 
-.searchWrapper {
+.projetsSearchWrapper {
   position: relative;
-  flex: 1;
+  min-width: 0;
 }
 
-.searchIcon {
+.projetsSearchIcon {
   position: absolute;
   left: 12px;
   top: 50%;
@@ -22,7 +26,7 @@
   color: #9ca3af;
 }
 
-.searchInput {
+.projetsSearchInput {
   width: 100%;
   padding: 10px 12px 10px 38px;
   border-radius: 8px;
@@ -31,13 +35,43 @@
   box-sizing: border-box;
 }
 
-.select {
+.projetsSelect {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
   padding: 10px 12px;
   border-radius: 8px;
   border: 1px solid #e5e7eb;
   font-size: 14px;
   background-color: #ffffff;
   cursor: pointer;
+}
+
+.projetsSearchInput:focus,
+.projetsSelect:focus {
+  outline: none;
+  border-color: #38bdf8;
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.12);
+}
+
+@media (max-width: 900px) {
+  .projetsToolbar {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .projetsSearchWrapper {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 600px) {
+  .projetsToolbar {
+    grid-template-columns: 1fr;
+  }
+
+  .projetsSearchWrapper {
+    grid-column: auto;
+  }
 }
 
 /* --- Tableau --- */
@@ -181,7 +215,7 @@
 }
 
 .pageBtnActive {
-  background-color: #7c3aed;
+  background-color: #0284c7;
   color: #ffffff;
 }
 
@@ -235,7 +269,7 @@
   padding: 10px;
   border: none;
   border-radius: 6px;
-  background-color: #7c3aed;
+  background-color: #0284c7;
   color: #ffffff;
   font-weight: 600;
   cursor: pointer;
