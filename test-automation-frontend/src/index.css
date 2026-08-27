@@ -19,6 +19,20 @@ body {
   color: #172033;
 }
 
+.app-shell {
+  display: flex;
+}
+
+.app-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.app-main {
+  padding: 0 20px;
+  color: #111827;
+}
+
 header {
   background-color: #ffffff;
   border-bottom: 1px solid #dbe3ea;
@@ -47,6 +61,27 @@ header p {
 .header-profile-button:focus-visible {
   outline: 3px solid rgba(56, 189, 248, 0.35);
   outline-offset: 2px;
+}
+
+.header-logout-button {
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  color: #64748b;
+  border: 1px solid #dbe3ea;
+  border-radius: 9px;
+  background: #fff;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s, background-color 0.2s;
+}
+
+.header-logout-button:hover {
+  color: #dc2626;
+  border-color: #fecaca;
+  background: #fff7f7;
 }
 
 button,

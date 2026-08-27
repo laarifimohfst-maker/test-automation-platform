@@ -5,6 +5,7 @@ import com.testplatform.test_automation_platform.entity.ResultatTest;
 import com.testplatform.test_automation_platform.service.ExecutionTestService;
 import com.testplatform.test_automation_platform.service.ResultatTestService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,6 +26,7 @@ public class ResultatTestController {
     }
 
     @PostMapping
+    @PreAuthorize("@authorizationService.peutCreerResultat(#p0, authentication)")
     public ResponseEntity<ResultatTest> enregistrerResultat(
             @RequestBody ResultatTest resultatTest) {
 
@@ -34,6 +36,7 @@ public class ResultatTestController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("@authorizationService.peutAccederResultat(#p0, authentication)")
     public ResponseEntity<ResultatTest> obtenirResultatParId(
             @PathVariable Long id) {
 
@@ -43,6 +46,7 @@ public class ResultatTestController {
     }
 
     @GetMapping("/execution/{executionId}")
+    @PreAuthorize("@authorizationService.peutAccederExecution(#p0, authentication)")
     public ResponseEntity<List<ResultatTest>> obtenirResultatsParExecution(
             @PathVariable Long executionId) {
 
@@ -55,6 +59,7 @@ public class ResultatTestController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("@authorizationService.peutAccederResultat(#p0, authentication)")
     public ResponseEntity<ResultatTest> modifierResultat(
             @PathVariable Long id,
             @RequestBody ResultatTest resultatTest) {
@@ -68,6 +73,7 @@ public class ResultatTestController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("@authorizationService.peutAccederResultat(#p0, authentication)")
     public ResponseEntity<Void> supprimerResultat(
             @PathVariable Long id) {
 

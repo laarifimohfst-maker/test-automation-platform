@@ -30,8 +30,7 @@ import {
 
 import './AnalyseQualite.css';
 import { useAlertDialog } from '../components/AlertDialogContext';
-
-const UTILISATEUR_ID = 1;
+import { obtenirUtilisateurId } from '../services/authStorage';
 
 function AnalyseQualite() {
   const { demanderConfirmation } = useAlertDialog();
@@ -58,7 +57,7 @@ function AnalyseQualite() {
   useEffect(() => {
     setChargementProjets(true);
 
-    obtenirProjetsUtilisateur(UTILISATEUR_ID)
+    obtenirProjetsUtilisateur(obtenirUtilisateurId())
       .then((res) => {
         setProjets(res.data);
 

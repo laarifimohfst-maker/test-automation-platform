@@ -6,6 +6,7 @@ import com.testplatform.test_automation_platform.enums.StatutExecution;
 import com.testplatform.test_automation_platform.service.ExecutionService;
 import com.testplatform.test_automation_platform.service.ProjetService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,6 +27,7 @@ public class ExecutionController {
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<Execution>> obtenirToutesLesExecutions() {
         return ResponseEntity.ok(
                 executionService.obtenirToutesLesExecutions()
@@ -33,6 +35,7 @@ public class ExecutionController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("@authorizationService.peutAccederExecution(#p0, authentication)")
     public ResponseEntity<Execution> obtenirExecutionParId(
             @PathVariable Long id) {
 
@@ -42,6 +45,7 @@ public class ExecutionController {
     }
 
     @GetMapping("/projet/{projetId}")
+    @PreAuthorize("@authorizationService.peutAccederProjet(#p0, authentication)")
     public ResponseEntity<List<Execution>> obtenirExecutionsParProjet(
             @PathVariable Long projetId) {
 
@@ -53,6 +57,7 @@ public class ExecutionController {
     }
 
     @PutMapping("/{id}/statut")
+    @PreAuthorize("@authorizationService.peutAccederExecution(#p0, authentication)")
     public ResponseEntity<Execution> mettreAJourStatut(
             @PathVariable Long id,
             @RequestParam StatutExecution statut) {
@@ -63,6 +68,7 @@ public class ExecutionController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("@authorizationService.peutAccederExecution(#p0, authentication)")
     public ResponseEntity<Void> supprimerExecution(
             @PathVariable Long id) {
 

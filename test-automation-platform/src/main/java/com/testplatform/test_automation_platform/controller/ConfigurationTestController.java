@@ -5,6 +5,7 @@ import com.testplatform.test_automation_platform.entity.Projet;
 import com.testplatform.test_automation_platform.service.ConfigurationTestService;
 import com.testplatform.test_automation_platform.service.ProjetService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,6 +25,7 @@ public class ConfigurationTestController {
     }
 
     @PostMapping("/api/configurations-tests")
+    @PreAuthorize("@authorizationService.peutCreerConfiguration(#p0, authentication)")
     public ResponseEntity<ConfigurationTest> creerConfiguration(
             @RequestBody ConfigurationTest configurationTest) {
 
@@ -33,6 +35,7 @@ public class ConfigurationTestController {
     }
 
     @GetMapping("/api/configurations-tests/{id}")
+    @PreAuthorize("@authorizationService.peutAccederConfiguration(#p0, authentication)")
     public ResponseEntity<ConfigurationTest> obtenirConfigurationParId(
             @PathVariable Long id) {
 
@@ -42,6 +45,7 @@ public class ConfigurationTestController {
     }
 
     @GetMapping("/api/configurations-tests/projet/{projetId}")
+    @PreAuthorize("@authorizationService.peutAccederProjet(#p0, authentication)")
     public ResponseEntity<List<ConfigurationTest>> obtenirConfigurationsParProjet(
             @PathVariable Long projetId) {
 
@@ -53,6 +57,7 @@ public class ConfigurationTestController {
     }
 
     @PutMapping("/api/configurations-tests/{id}")
+    @PreAuthorize("@authorizationService.peutAccederConfiguration(#p0, authentication)")
     public ResponseEntity<ConfigurationTest> modifierConfiguration(
             @PathVariable Long id,
             @RequestBody ConfigurationTest configurationTest) {
@@ -66,6 +71,7 @@ public class ConfigurationTestController {
     }
 
     @DeleteMapping("/api/configurations-tests/{id}")
+    @PreAuthorize("@authorizationService.peutAccederConfiguration(#p0, authentication)")
     public ResponseEntity<Void> supprimerConfiguration(
             @PathVariable Long id) {
 
@@ -75,6 +81,7 @@ public class ConfigurationTestController {
     }
 
     @PostMapping("/api/projets/{projetId}/configuration-test")
+    @PreAuthorize("@authorizationService.peutAccederProjet(#p0, authentication)")
     public ResponseEntity<ConfigurationTest> configurer(
             @PathVariable Long projetId,
             @RequestBody ConfigurationTest configurationTest) {

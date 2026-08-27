@@ -36,6 +36,7 @@ test-automation-platform/.vscode/
 # Generated files
 test-automation-platform/uploads/
 test-automation-platform/reports/
+test-automation-platform/.jwt/
 
 # =========================
 # Frontend - React / Vite

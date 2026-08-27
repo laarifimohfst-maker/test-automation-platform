@@ -4,6 +4,7 @@ import com.testplatform.test_automation_platform.entity.Rapport;
 import com.testplatform.test_automation_platform.enums.TypeRapport;
 import com.testplatform.test_automation_platform.service.RapportService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -24,6 +25,7 @@ public class RapportController {
     }
 
     @PostMapping("/tests")
+    @PreAuthorize("@authorizationService.peutAccederExecution(#p0, authentication)")
     public ResponseEntity<Rapport> genererRapportTests(
             @RequestParam Long executionId) {
 
@@ -33,6 +35,7 @@ public class RapportController {
     }
 
     @PostMapping("/analyse-qualite")
+    @PreAuthorize("@authorizationService.peutAccederExecution(#p0, authentication)")
     public ResponseEntity<Rapport> genererRapportAnalyseQualite(
             @RequestParam Long executionId) {
 
@@ -42,6 +45,7 @@ public class RapportController {
     }
 
     @GetMapping("/{id}/download")
+    @PreAuthorize("@authorizationService.peutAccederRapport(#p0, authentication)")
     public ResponseEntity<byte[]> telechargerRapport(@PathVariable Long id) throws IOException {
 
         Rapport rapport = rapportService.obtenirRapportParId(id);
@@ -60,6 +64,7 @@ public class RapportController {
     }
 
     @PostMapping
+    @PreAuthorize("@authorizationService.peutAccederExecution(#p1, authentication)")
     public ResponseEntity<Rapport> enregistrerRapport(
             @RequestBody Rapport rapport,
             @RequestParam Long executionId) {
@@ -70,26 +75,31 @@ public class RapportController {
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<Rapport>> obtenirTousLesRapports() {
         return ResponseEntity.ok(rapportService.obtenirTousLesRapports());
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("@authorizationService.peutAccederRapport(#p0, authentication)")
     public ResponseEntity<Rapport> obtenirRapportParId(@PathVariable Long id) {
         return ResponseEntity.ok(rapportService.obtenirRapportParId(id));
     }
 
     @GetMapping("/type/{type}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<Rapport>> obtenirRapportsParType(@PathVariable TypeRapport type) {
         return ResponseEntity.ok(rapportService.obtenirRapportsParType(type));
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Rapport> modifierRapport(@PathVariable Long id, @RequestBody Rapport rapport) {
         return ResponseEntity.ok(rapportService.modifierRapport(id, rapport));
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> supprimerRapport(@PathVariable Long id) {
         rapportService.supprimerRapport(id);
         return ResponseEntity.noContent().build();

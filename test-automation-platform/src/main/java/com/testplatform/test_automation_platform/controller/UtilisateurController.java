@@ -1,8 +1,11 @@
 package com.testplatform.test_automation_platform.controller;
 
 import com.testplatform.test_automation_platform.entity.Utilisateur;
+import com.testplatform.test_automation_platform.security.AuthorizationService;
 import com.testplatform.test_automation_platform.service.UtilisateurService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -12,12 +15,17 @@ import java.util.List;
 public class UtilisateurController {
 
     private final UtilisateurService utilisateurService;
+    private final AuthorizationService authorizationService;
 
-    public UtilisateurController(UtilisateurService utilisateurService) {
+    public UtilisateurController(
+            UtilisateurService utilisateurService,
+            AuthorizationService authorizationService) {
         this.utilisateurService = utilisateurService;
+        this.authorizationService = authorizationService;
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Utilisateur> creerUtilisateur(
             @RequestBody Utilisateur utilisateur) {
 
@@ -27,6 +35,7 @@ public class UtilisateurController {
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<Utilisateur>> obtenirTousLesUtilisateurs() {
 
         return ResponseEntity.ok(
@@ -35,6 +44,7 @@ public class UtilisateurController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("@authorizationService.peutAccederUtilisateur(#p0, authentication)")
     public ResponseEntity<Utilisateur> obtenirUtilisateurParId(
             @PathVariable Long id) {
 
@@ -44,6 +54,7 @@ public class UtilisateurController {
     }
 
     @GetMapping("/email/{email}")
+    @PreAuthorize("@authorizationService.peutAccederEmail(#p0, authentication)")
     public ResponseEntity<Utilisateur> obtenirUtilisateurParEmail(
             @PathVariable String email) {
 
@@ -53,20 +64,29 @@ public class UtilisateurController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("@authorizationService.peutAccederUtilisateur(#p0, authentication)")
     public ResponseEntity<Utilisateur> modifierUtilisateur(
             @PathVariable Long id,
-            @RequestBody Utilisateur utilisateur) {
+            @RequestBody Utilisateur utilisateur,
+            Authentication authentication) {
 
         return ResponseEntity.ok(
-                utilisateurService.modifierUtilisateur(id, utilisateur)
+                utilisateurService.modifierUtilisateur(
+                        id,
+                        utilisateur,
+                        authorizationService.estAdmin(authentication),
+                        authentication.getName()
+                )
         );
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> supprimerUtilisateur(
-            @PathVariable Long id) {
+            @PathVariable Long id,
+            Authentication authentication) {
 
-        utilisateurService.supprimerUtilisateur(id);
+        utilisateurService.supprimerUtilisateur(id, authentication.getName());
 
         return ResponseEntity.noContent().build();
     }

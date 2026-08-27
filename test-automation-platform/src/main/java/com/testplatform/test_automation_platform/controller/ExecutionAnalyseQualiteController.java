@@ -6,6 +6,7 @@ import com.testplatform.test_automation_platform.enums.StatutExecution;
 import com.testplatform.test_automation_platform.service.ExecutionAnalyseQualiteService;
 import com.testplatform.test_automation_platform.service.ProjetService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,6 +27,7 @@ public class ExecutionAnalyseQualiteController {
     }
 
     @PostMapping
+    @PreAuthorize("@authorizationService.peutAccederProjet(#p0, authentication)")
     public ResponseEntity<ExecutionAnalyseQualite> creerExecution(
             @RequestParam Long projetId) {
 
@@ -37,6 +39,7 @@ public class ExecutionAnalyseQualiteController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("@authorizationService.peutAccederExecution(#p0, authentication)")
     public ResponseEntity<ExecutionAnalyseQualite> obtenirExecutionParId(
             @PathVariable Long id) {
 
@@ -46,6 +49,7 @@ public class ExecutionAnalyseQualiteController {
     }
 
     @GetMapping("/projet/{projetId}")
+    @PreAuthorize("@authorizationService.peutAccederProjet(#p0, authentication)")
     public ResponseEntity<List<ExecutionAnalyseQualite>>
     obtenirExecutionsParProjet(
             @PathVariable Long projetId) {
@@ -58,6 +62,7 @@ public class ExecutionAnalyseQualiteController {
     }
 
     @PutMapping("/{id}/demarrer")
+    @PreAuthorize("@authorizationService.peutAccederExecution(#p0, authentication)")
     public ResponseEntity<ExecutionAnalyseQualite> demarrerExecution(
             @PathVariable Long id) {
 
@@ -67,6 +72,7 @@ public class ExecutionAnalyseQualiteController {
     }
 
     @PutMapping("/{id}/terminer")
+    @PreAuthorize("@authorizationService.peutAccederExecution(#p0, authentication)")
     public ResponseEntity<ExecutionAnalyseQualite> terminerExecution(
             @PathVariable Long id,
             @RequestParam StatutExecution statut,
@@ -82,6 +88,7 @@ public class ExecutionAnalyseQualiteController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("@authorizationService.peutAccederExecution(#p0, authentication)")
     public ResponseEntity<Void> supprimerExecution(
             @PathVariable Long id) {
 
@@ -91,6 +98,7 @@ public class ExecutionAnalyseQualiteController {
     }
 
     @PostMapping("/{id}/executer")
+    @PreAuthorize("@authorizationService.peutAccederExecution(#p0, authentication)")
     public ResponseEntity<ExecutionAnalyseQualite> executerAnalyse(
             @PathVariable Long id) {
 

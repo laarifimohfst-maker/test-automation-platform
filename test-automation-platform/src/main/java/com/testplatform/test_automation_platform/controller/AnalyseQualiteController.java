@@ -5,6 +5,7 @@ import com.testplatform.test_automation_platform.entity.ExecutionAnalyseQualite;
 import com.testplatform.test_automation_platform.service.AnalyseQualiteService;
 import com.testplatform.test_automation_platform.service.ExecutionAnalyseQualiteService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -22,6 +23,7 @@ public class AnalyseQualiteController {
     }
 
     @PostMapping
+    @PreAuthorize("@authorizationService.peutCreerAnalyse(#p0, authentication)")
     public ResponseEntity<AnalyseQualite> enregistrerAnalyse(
             @RequestBody AnalyseQualite analyseQualite) {
 
@@ -31,6 +33,7 @@ public class AnalyseQualiteController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("@authorizationService.peutAccederAnalyse(#p0, authentication)")
     public ResponseEntity<AnalyseQualite> obtenirAnalyseParId(
             @PathVariable Long id) {
 
@@ -40,6 +43,7 @@ public class AnalyseQualiteController {
     }
 
     @GetMapping("/execution/{executionId}")
+    @PreAuthorize("@authorizationService.peutAccederExecution(#p0, authentication)")
     public ResponseEntity<AnalyseQualite> obtenirAnalyseParExecution(
             @PathVariable Long executionId) {
 
@@ -52,6 +56,7 @@ public class AnalyseQualiteController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("@authorizationService.peutAccederAnalyse(#p0, authentication)")
     public ResponseEntity<AnalyseQualite> modifierAnalyse(
             @PathVariable Long id,
             @RequestBody AnalyseQualite analyseQualite) {
@@ -65,6 +70,7 @@ public class AnalyseQualiteController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("@authorizationService.peutAccederAnalyse(#p0, authentication)")
     public ResponseEntity<Void> supprimerAnalyse(
             @PathVariable Long id) {
 

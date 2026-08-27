@@ -1,5 +1,6 @@
 package com.testplatform.test_automation_platform.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.testplatform.test_automation_platform.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
@@ -25,6 +26,7 @@ public class Utilisateur {
     private String email;
 
     @Column(nullable = false)
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String motDePasse;
 
     @Enumerated(EnumType.STRING)

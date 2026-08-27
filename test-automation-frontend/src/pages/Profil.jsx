@@ -14,8 +14,7 @@ import {
 } from '../services/utilisateurService';
 
 import './Profil.css';
-
-const UTILISATEUR_ID = 1;
+import { enregistrerUtilisateur, obtenirUtilisateurId } from '../services/authStorage';
 
 function Profil() {
   const [utilisateur, setUtilisateur] = useState(null);
@@ -28,7 +27,7 @@ function Profil() {
   useEffect(() => {
     let composantActif = true;
 
-    obtenirUtilisateurParId(UTILISATEUR_ID)
+    obtenirUtilisateurParId(obtenirUtilisateurId())
       .then((response) => {
         if (!composantActif) return;
 
@@ -115,13 +114,14 @@ function Profil() {
     setSucces(null);
 
     try {
-      const response = await modifierUtilisateur(UTILISATEUR_ID, {
+      const response = await modifierUtilisateur(obtenirUtilisateurId(), {
         nom,
         email,
         role: utilisateur.role,
       });
 
       setUtilisateur(response.data);
+      enregistrerUtilisateur(response.data);
       setFormulaire({
         nom: response.data.nom || '',
         email: response.data.email || '',

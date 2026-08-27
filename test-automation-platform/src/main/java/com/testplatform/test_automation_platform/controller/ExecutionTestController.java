@@ -8,6 +8,7 @@ import com.testplatform.test_automation_platform.service.ConfigurationTestServic
 import com.testplatform.test_automation_platform.service.ExecutionTestService;
 import com.testplatform.test_automation_platform.service.ProjetService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -31,6 +32,8 @@ public class ExecutionTestController {
     }
 
     @PostMapping
+    @PreAuthorize("@authorizationService.peutAccederProjet(#p0, authentication)"
+            + " && @authorizationService.peutAccederConfiguration(#p1, authentication)")
     public ResponseEntity<ExecutionTest> lancerTest(
             @RequestParam Long projetId,
             @RequestParam Long configurationTestId) {
@@ -58,6 +61,7 @@ public class ExecutionTestController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("@authorizationService.peutAccederExecution(#p0, authentication)")
     public ResponseEntity<ExecutionTest> obtenirExecutionParId(
             @PathVariable Long id) {
 
@@ -67,6 +71,7 @@ public class ExecutionTestController {
     }
 
     @GetMapping("/projet/{projetId}")
+    @PreAuthorize("@authorizationService.peutAccederProjet(#p0, authentication)")
     public ResponseEntity<List<ExecutionTest>> obtenirExecutionsParProjet(
             @PathVariable Long projetId) {
 
@@ -78,6 +83,7 @@ public class ExecutionTestController {
     }
 
     @PutMapping("/{id}/demarrer")
+    @PreAuthorize("@authorizationService.peutAccederExecution(#p0, authentication)")
     public ResponseEntity<ExecutionTest> demarrerExecution(
             @PathVariable Long id) {
 
@@ -94,6 +100,7 @@ public class ExecutionTestController {
     }
 
     @PutMapping("/{id}/terminer")
+    @PreAuthorize("@authorizationService.peutAccederExecution(#p0, authentication)")
     public ResponseEntity<ExecutionTest> terminerExecution(
             @PathVariable Long id,
             @RequestParam StatutExecution statut,
@@ -109,6 +116,7 @@ public class ExecutionTestController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("@authorizationService.peutAccederExecution(#p0, authentication)")
     public ResponseEntity<Void> supprimerExecution(
             @PathVariable Long id) {
 

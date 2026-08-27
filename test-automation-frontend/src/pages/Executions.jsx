@@ -10,8 +10,7 @@ import {
 import './Executions.css';
 import { useNavigate } from 'react-router-dom';
 import { useAlertDialog } from '../components/AlertDialogContext';
-
-const UTILISATEUR_ID = 1;
+import { obtenirUtilisateurId } from '../services/authStorage';
 
 function Executions() {
   const navigate = useNavigate();
@@ -35,7 +34,7 @@ function Executions() {
   useEffect(() => {
     setChargementProjets(true);
 
-    obtenirProjetsUtilisateur(UTILISATEUR_ID)
+    obtenirProjetsUtilisateur(obtenirUtilisateurId())
       .then((res) => setProjets(res.data))
       .catch((err) => {
         console.error(err);

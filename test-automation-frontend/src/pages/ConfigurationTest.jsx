@@ -8,8 +8,7 @@ import {
 import { Trash2 } from 'lucide-react';
 import { useAlertDialog } from '../components/AlertDialogContext';
 import './ConfigurationTest.css';
-
-const UTILISATEUR_ID = 1; // en dur pour l'instant, comme le reste de l'app
+import { obtenirUtilisateurId } from '../services/authStorage';
 
 function ConfigurationTest() {
   const { demanderConfirmation, afficherAlerte } = useAlertDialog();
@@ -33,7 +32,7 @@ function ConfigurationTest() {
 
   // Chargement de la liste des projets au montage de la page
   useEffect(() => {
-    obtenirProjetsUtilisateur(UTILISATEUR_ID)
+    obtenirProjetsUtilisateur(obtenirUtilisateurId())
       .then((res) => setProjets(res.data))
       .catch((err) => console.error('Erreur chargement projets', err));
   }, []);

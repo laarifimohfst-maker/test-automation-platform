@@ -6,6 +6,7 @@ import com.testplatform.test_automation_platform.entity.Utilisateur;
 import com.testplatform.test_automation_platform.service.ProjetService;
 import com.testplatform.test_automation_platform.service.UtilisateurService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -31,6 +32,7 @@ public class ProjetController {
     }
 
     @PostMapping
+    @PreAuthorize("@authorizationService.peutCreerProjet(#p0, authentication)")
     public ResponseEntity<Projet> creerProjet(
             @RequestBody Projet projet) {
 
@@ -40,6 +42,7 @@ public class ProjetController {
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<Projet>> obtenirTousLesProjets() {
 
         return ResponseEntity.ok(
@@ -48,6 +51,7 @@ public class ProjetController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("@authorizationService.peutAccederProjet(#p0, authentication)")
     public ResponseEntity<Projet> obtenirProjetParId(
             @PathVariable Long id) {
 
@@ -57,6 +61,7 @@ public class ProjetController {
     }
 
     @GetMapping("/utilisateur/{utilisateurId}")
+    @PreAuthorize("@authorizationService.peutAccederUtilisateur(#p0, authentication)")
     public ResponseEntity<List<Projet>> obtenirProjetsUtilisateur(
             @PathVariable Long utilisateurId) {
 
@@ -73,6 +78,7 @@ public class ProjetController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("@authorizationService.peutAccederProjet(#p0, authentication)")
     public ResponseEntity<Projet> modifierProjet(
             @PathVariable Long id,
             @RequestBody Projet projet) {
@@ -83,6 +89,7 @@ public class ProjetController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> supprimerProjet(
             @PathVariable Long id) {
 
@@ -92,6 +99,7 @@ public class ProjetController {
     }
 
     @PostMapping("/import")
+    @PreAuthorize("@authorizationService.peutAccederUtilisateur(#p1, authentication)")
     public ResponseEntity<?> importerProjet(
             @RequestParam("fichier") MultipartFile fichier,
             @RequestParam Long utilisateurId) {
@@ -122,6 +130,7 @@ public class ProjetController {
     }
 
     @PostMapping("/import/github")
+    @PreAuthorize("@authorizationService.peutAccederUtilisateur(#p1, authentication)")
     public ResponseEntity<?> importerDepuisGithub(
             @RequestParam String url,
             @RequestParam Long utilisateurId) {

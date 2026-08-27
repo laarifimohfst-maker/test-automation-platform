@@ -4,6 +4,7 @@ import com.testplatform.test_automation_platform.entity.Utilisateur;
 import com.testplatform.test_automation_platform.repository.UtilisateurRepository;
 import com.testplatform.test_automation_platform.service.DashboardService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -23,6 +24,7 @@ public class DashboardController {
     }
 
     @GetMapping
+    @PreAuthorize("@authorizationService.peutAccederUtilisateur(#p0, authentication)")
     public ResponseEntity<Map<String, Object>> obtenirDashboard(@RequestParam Long utilisateurId) {
 
         Utilisateur utilisateur = utilisateurRepository.findById(utilisateurId)

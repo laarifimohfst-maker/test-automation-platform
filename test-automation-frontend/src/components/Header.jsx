@@ -1,15 +1,16 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useEffect, useState, useRef } from 'react';
-import { Upload, GitBranch, X } from 'lucide-react';
+import { Upload, GitBranch, LogOut, X } from 'lucide-react';
 import { importerProjetZip, importerProjetGithub } from '../services/projetService';
 import NotificationBell from './NotificationBell';
 import { obtenirUtilisateurParId } from '../services/utilisateurService';
-
-const UTILISATEUR_ID = 1;
+import { obtenirUtilisateurId } from '../services/authStorage';
+import useAuth from '../hooks/useAuth';
 
 function Header() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { deconnecter } = useAuth();
 
   const estProjets = location.pathname === '/projets';
   const estConfiguration = location.pathname === '/configurations';
@@ -30,7 +31,7 @@ function Header() {
   useEffect(() => {
     let composantActif = true;
 
-    obtenirUtilisateurParId(UTILISATEUR_ID)
+    obtenirUtilisateurParId(obtenirUtilisateurId())
       .then((response) => {
         if (composantActif) setUtilisateurHeader(response.data);
       })
@@ -74,7 +75,7 @@ function Header() {
     setEnCours(true);
     setErreur(null);
 
-    importerProjetZip(fichier, UTILISATEUR_ID)
+    importerProjetZip(fichier, obtenirUtilisateurId())
       .then(() => {
         setMenuImport(false);
         prevenirImportReussi();
@@ -102,7 +103,7 @@ function Header() {
 
     importerProjetGithub(
       urlGithub.trim(),
-      UTILISATEUR_ID
+      obtenirUtilisateurId()
     )
       .then(() => {
         setModaleGithub(false);
@@ -530,6 +531,19 @@ function Header() {
           }}
         >
           {initialesUtilisateur()}
+        </button>
+
+        <button
+          type="button"
+          className="header-logout-button"
+          aria-label="Se déconnecter"
+          title="Se déconnecter"
+          onClick={() => {
+            deconnecter();
+            navigate('/login', { replace: true });
+          }}
+        >
+          <LogOut size={19} />
         </button>
 
       </div>

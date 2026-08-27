@@ -5,6 +5,7 @@ import com.testplatform.test_automation_platform.entity.Utilisateur;
 import com.testplatform.test_automation_platform.service.NotificationService;
 import com.testplatform.test_automation_platform.service.UtilisateurService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,6 +26,7 @@ public class NotificationController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Notification> creerNotification(
             @RequestBody Notification notification) {
 
@@ -34,6 +36,7 @@ public class NotificationController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("@authorizationService.peutAccederNotification(#p0, authentication)")
     public ResponseEntity<Notification> obtenirNotificationParId(
             @PathVariable Long id) {
 
@@ -43,6 +46,7 @@ public class NotificationController {
     }
 
     @GetMapping("/utilisateur/{utilisateurId}")
+    @PreAuthorize("@authorizationService.peutAccederUtilisateur(#p0, authentication)")
     public ResponseEntity<List<Notification>> obtenirNotificationsUtilisateur(
             @PathVariable Long utilisateurId) {
 
@@ -61,6 +65,7 @@ public class NotificationController {
     }
 
     @GetMapping("/utilisateur/{utilisateurId}/non-lues")
+    @PreAuthorize("@authorizationService.peutAccederUtilisateur(#p0, authentication)")
     public ResponseEntity<List<Notification>> obtenirNotificationsNonLues(
             @PathVariable Long utilisateurId) {
 
@@ -79,6 +84,7 @@ public class NotificationController {
     }
 
     @PutMapping("/{id}/lire")
+    @PreAuthorize("@authorizationService.peutAccederNotification(#p0, authentication)")
     public ResponseEntity<Notification> marquerCommeLue(
             @PathVariable Long id) {
 
@@ -88,6 +94,7 @@ public class NotificationController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("@authorizationService.peutAccederNotification(#p0, authentication)")
     public ResponseEntity<Notification> modifierNotification(
             @PathVariable Long id,
             @RequestBody Notification notification) {
@@ -101,6 +108,7 @@ public class NotificationController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("@authorizationService.peutAccederNotification(#p0, authentication)")
     public ResponseEntity<Void> supprimerNotification(
             @PathVariable Long id) {
 

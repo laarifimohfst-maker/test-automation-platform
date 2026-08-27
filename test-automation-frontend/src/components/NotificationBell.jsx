@@ -16,8 +16,8 @@ import {
 } from '../services/notificationService';
 
 import './NotificationBell.css';
+import { obtenirUtilisateurId } from '../services/authStorage';
 
-const UTILISATEUR_ID = 1;
 const INTERVALLE_ACTUALISATION = 30000;
 
 function NotificationBell() {
@@ -32,7 +32,7 @@ function NotificationBell() {
   const chargerNotifications = useCallback(async (avecChargement = false) => {
     try {
       const response =
-        await obtenirNotificationsUtilisateur(UTILISATEUR_ID);
+        await obtenirNotificationsUtilisateur(obtenirUtilisateurId());
 
       const notificationsTriees = [...response.data].sort(
         (a, b) => new Date(b.dateEnvoi || 0) - new Date(a.dateEnvoi || 0)

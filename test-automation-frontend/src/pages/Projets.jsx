@@ -7,9 +7,9 @@ import {
 } from '../services/projetService';
 import { useAlertDialog } from '../components/AlertDialogContext';
 import './Projets.css';
+import { obtenirUtilisateurId } from '../services/authStorage';
 
 const PROJETS_PAR_PAGE = 5;
-const UTILISATEUR_ID = 1; // en dur pour l'instant, comme dans Dashboard.jsx
 
 // Palette de couleurs piochée selon l'id du projet, pour l'avatar coloré
 const PALETTE = ['#e0f2fe', '#dcfce7', '#fef3c7', '#dbeafe', '#fee2e2'];
@@ -34,7 +34,7 @@ function Projets() {
   // Fonction de chargement réutilisable : appelée au montage, et après suppression/modification
   const charger = () => {
     setChargement(true);
-    obtenirProjetsUtilisateur(UTILISATEUR_ID)
+    obtenirProjetsUtilisateur(obtenirUtilisateurId())
       .then((res) => setProjets(res.data))
       .catch((err) => {
         console.error('Erreur chargement projets', err);

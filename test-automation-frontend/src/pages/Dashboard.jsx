@@ -4,12 +4,13 @@ import StatCard from '../components/StatCard';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { Folder, Play, CheckCircle, XCircle, AlertCircle, Shield } from 'lucide-react';
 import './Dashboard.css';
+import { obtenirUtilisateurId } from '../services/authStorage';
 
 function Dashboard() {
   const [donnees, setDonnees] = useState(null);
 
   useEffect(() => {
-    obtenirDashboard(1).then((resultat) => {
+    obtenirDashboard(obtenirUtilisateurId()).then((resultat) => {
       setDonnees(resultat);
     });
   }, []);

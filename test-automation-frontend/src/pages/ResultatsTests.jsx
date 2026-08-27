@@ -19,8 +19,8 @@ import {
 } from '../services/rapportService';
 
 import './ResultatsTests.css';
+import { obtenirUtilisateurId } from '../services/authStorage';
 
-const UTILISATEUR_ID = 1;
 const RESULTATS_PAR_PAGE = 10;
 
 function ResultatsTests() {
@@ -50,7 +50,7 @@ function ResultatsTests() {
     setChargementExecutions(true);
     setErreur(null);
 
-    obtenirProjetsUtilisateur(UTILISATEUR_ID)
+    obtenirProjetsUtilisateur(obtenirUtilisateurId())
       .then(async (res) => {
         const projets = res.data;
 
