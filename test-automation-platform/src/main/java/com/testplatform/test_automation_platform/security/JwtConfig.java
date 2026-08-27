@@ -1,5 +1,7 @@
 package com.testplatform.test_automation_platform.security;
 
+import com.testplatform.test_automation_platform.entity.Utilisateur;
+import com.testplatform.test_automation_platform.repository.UtilisateurRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -84,7 +86,8 @@ public class JwtConfig {
     public JwtDecoder jwtDecoder(
             KeyPair jwtKeyPair,
             @Value("${security.jwt.issuer}") String issuer,
-            @Value("${security.jwt.audience}") String audience) {
+            @Value("${security.jwt.audience}") String audience,
+            UtilisateurRepository utilisateurRepository) {
 
         RSAPublicKey publicKey = (RSAPublicKey) jwtKeyPair.getPublic();
         NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withPublicKey(publicKey).build();
@@ -95,11 +98,21 @@ public class JwtConfig {
                         "aud",
                         audiences -> audiences != null && audiences.contains(audience)
                 );
+        OAuth2TokenValidator<Jwt> utilisateurActifValidator =
+                new JwtClaimValidator<String>(
+                        "sub",
+                        email -> email != null
+                                && utilisateurRepository
+                                .findByEmailIgnoreCase(email)
+                                .map(Utilisateur::isActif)
+                                .orElse(false)
+                );
 
         jwtDecoder.setJwtValidator(
                 new DelegatingOAuth2TokenValidator<>(
                         issuerValidator,
-                        audienceValidator
+                        audienceValidator,
+                        utilisateurActifValidator
                 )
         );
         return jwtDecoder;

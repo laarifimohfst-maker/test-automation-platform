@@ -4,29 +4,59 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.testplatform.test_automation_platform.entity.Execution;
+import com.testplatform.test_automation_platform.entity.ExecutionAnalyseQualite;
+import com.testplatform.test_automation_platform.entity.ExecutionTest;
 import com.testplatform.test_automation_platform.entity.Projet;
 import com.testplatform.test_automation_platform.entity.Utilisateur;
 import com.testplatform.test_automation_platform.enums.StatutProjet;
 import com.testplatform.test_automation_platform.enums.TypeSource;
+import com.testplatform.test_automation_platform.repository.AnalyseQualiteRepository;
+import com.testplatform.test_automation_platform.repository.ConfigurationTestRepository;
+import com.testplatform.test_automation_platform.repository.ExecutionRepository;
+import com.testplatform.test_automation_platform.repository.NotificationRepository;
 import com.testplatform.test_automation_platform.repository.ProjetRepository;
+import com.testplatform.test_automation_platform.repository.RapportRepository;
+import com.testplatform.test_automation_platform.repository.ResultatTestRepository;
 
 @Service
 public class ProjetService {
 
     private final ProjetRepository projetRepository;
     private final FileStorageService fileStorageService;
+    private final ExecutionRepository executionRepository;
+    private final ConfigurationTestRepository configurationTestRepository;
+    private final ResultatTestRepository resultatTestRepository;
+    private final AnalyseQualiteRepository analyseQualiteRepository;
+    private final RapportRepository rapportRepository;
+    private final NotificationRepository notificationRepository;
 
     public ProjetService(
             ProjetRepository projetRepository,
-            FileStorageService fileStorageService) {
+            FileStorageService fileStorageService,
+            ExecutionRepository executionRepository,
+            ConfigurationTestRepository configurationTestRepository,
+            ResultatTestRepository resultatTestRepository,
+            AnalyseQualiteRepository analyseQualiteRepository,
+            RapportRepository rapportRepository,
+            NotificationRepository notificationRepository) {
 
         this.projetRepository = projetRepository;
         this.fileStorageService = fileStorageService;
+        this.executionRepository = executionRepository;
+        this.configurationTestRepository = configurationTestRepository;
+        this.resultatTestRepository = resultatTestRepository;
+        this.analyseQualiteRepository = analyseQualiteRepository;
+        this.rapportRepository = rapportRepository;
+        this.notificationRepository = notificationRepository;
     }
 
     public Projet creerProjet(Projet projet) {
@@ -90,6 +120,39 @@ public class ProjetService {
         return projetRepository.findAll();
     }
 
+    @Transactional(readOnly = true)
+    public List<Projet> rechercherProjetsAdministration(
+            String recherche,
+            Long utilisateurId,
+            StatutProjet statut,
+            TypeSource typeSource) {
+
+        String texteRecherche = recherche == null
+                ? ""
+                : recherche.trim().toLowerCase(Locale.ROOT);
+
+        return projetRepository
+                .findAll(Sort.by(Sort.Direction.DESC, "dateImport"))
+                .stream()
+                .filter(projet -> utilisateurId == null
+                        || projet.getUtilisateur().getId().equals(utilisateurId))
+                .filter(projet -> statut == null || projet.getStatut() == statut)
+                .filter(projet -> typeSource == null
+                        || projet.getTypeSource() == typeSource)
+                .filter(projet -> texteRecherche.isEmpty()
+                        || contientIgnoreCase(projet.getNom(), texteRecherche)
+                        || contientIgnoreCase(projet.getDescription(), texteRecherche)
+                        || contientIgnoreCase(
+                                projet.getUtilisateur().getNom(),
+                                texteRecherche
+                        )
+                        || contientIgnoreCase(
+                                projet.getUtilisateur().getEmail(),
+                                texteRecherche
+                        ))
+                .toList();
+    }
+
     public Projet obtenirProjetParId(Long id) {
         return projetRepository.findById(id)
                 .orElseThrow(() ->
@@ -112,12 +175,48 @@ public class ProjetService {
         return projetRepository.save(projet);
     }
 
+    @Transactional
     public void supprimerProjet(Long id) {
 
-        if (!projetRepository.existsById(id)) {
-            throw new IllegalArgumentException("Projet introuvable.");
+        Projet projet = obtenirProjetParId(id);
+        List<Execution> executions = executionRepository.findByProjet(projet);
+
+        for (Execution execution : executions) {
+            Long executionId = execution.getId();
+
+            notificationRepository.deleteByExecutionId(executionId);
+            rapportRepository.deleteByExecutionId(executionId);
+
+            if (execution instanceof ExecutionTest) {
+                resultatTestRepository.deleteByExecutionId(executionId);
+            }
+
+            if (execution instanceof ExecutionAnalyseQualite executionAnalyse) {
+                analyseQualiteRepository
+                        .findByExecutionAnalyseQualite(executionAnalyse)
+                        .ifPresent(analyseQualiteRepository::delete);
+            }
+
+            executionRepository.delete(execution);
         }
 
-        projetRepository.deleteById(id);
+        executionRepository.flush();
+
+        configurationTestRepository.deleteAll(
+                configurationTestRepository.findByProjet(projet)
+        );
+        configurationTestRepository.flush();
+
+        projetRepository.delete(projet);
+        projetRepository.flush();
+
+        if (fileStorageService.estCheminProjetAutorise(projet.getCheminLocal())) {
+            fileStorageService.supprimerProjet(projet.getCheminLocal());
+        }
+    }
+
+    private boolean contientIgnoreCase(String valeur, String recherche) {
+        return valeur != null
+                && valeur.toLowerCase(Locale.ROOT).contains(recherche);
     }
 }

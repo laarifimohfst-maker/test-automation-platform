@@ -114,6 +114,10 @@ public class SecurityConfig {
                                 "/api/rapports/**"
                         ).hasRole("ADMIN")
                         .requestMatchers(
+                                HttpMethod.PATCH,
+                                "/api/utilisateurs/**"
+                        ).hasRole("ADMIN")
+                        .requestMatchers(
                                 HttpMethod.DELETE,
                                 "/api/utilisateurs/**",
                                 "/api/projets/**",

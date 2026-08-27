@@ -90,4 +90,34 @@ public class UtilisateurController {
 
         return ResponseEntity.noContent().build();
     }
+
+    @PatchMapping("/{id}/desactiver")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Utilisateur> desactiverUtilisateur(
+            @PathVariable Long id,
+            Authentication authentication) {
+
+        return ResponseEntity.ok(
+                utilisateurService.changerStatutUtilisateur(
+                        id,
+                        false,
+                        authentication.getName()
+                )
+        );
+    }
+
+    @PatchMapping("/{id}/reactiver")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Utilisateur> reactiverUtilisateur(
+            @PathVariable Long id,
+            Authentication authentication) {
+
+        return ResponseEntity.ok(
+                utilisateurService.changerStatutUtilisateur(
+                        id,
+                        true,
+                        authentication.getName()
+                )
+        );
+    }
 }

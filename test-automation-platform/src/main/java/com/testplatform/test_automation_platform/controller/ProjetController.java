@@ -3,6 +3,8 @@ package com.testplatform.test_automation_platform.controller;
 import com.testplatform.test_automation_platform.service.FileStorageService;
 import com.testplatform.test_automation_platform.entity.Projet;
 import com.testplatform.test_automation_platform.entity.Utilisateur;
+import com.testplatform.test_automation_platform.enums.StatutProjet;
+import com.testplatform.test_automation_platform.enums.TypeSource;
 import com.testplatform.test_automation_platform.service.ProjetService;
 import com.testplatform.test_automation_platform.service.UtilisateurService;
 import org.springframework.http.ResponseEntity;
@@ -43,10 +45,19 @@ public class ProjetController {
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<Projet>> obtenirTousLesProjets() {
+    public ResponseEntity<List<Projet>> obtenirTousLesProjets(
+            @RequestParam(required = false) String recherche,
+            @RequestParam(required = false) Long utilisateurId,
+            @RequestParam(required = false) StatutProjet statut,
+            @RequestParam(required = false) TypeSource typeSource) {
 
         return ResponseEntity.ok(
-                projetService.obtenirTousLesProjets()
+                projetService.rechercherProjetsAdministration(
+                        recherche,
+                        utilisateurId,
+                        statut,
+                        typeSource
+                )
         );
     }
 

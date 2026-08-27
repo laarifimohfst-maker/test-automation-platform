@@ -33,5 +33,9 @@ public class Utilisateur {
     @Column(nullable = false)
     private Role role;
 
+    @Builder.Default
+    @Column(nullable = false, columnDefinition = "boolean default true")
+    private boolean actif = true;
+
     private LocalDateTime dateCreation;
 }

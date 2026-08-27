@@ -1,15 +1,16 @@
 package com.testplatform.test_automation_platform.service;
 
-import com.testplatform.test_automation_platform.entity.Utilisateur;
-import com.testplatform.test_automation_platform.enums.Role;
-import com.testplatform.test_automation_platform.repository.UtilisateurRepository;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import com.testplatform.test_automation_platform.entity.Utilisateur;
+import com.testplatform.test_automation_platform.enums.Role;
+import com.testplatform.test_automation_platform.repository.UtilisateurRepository;
 
 @Service
 public class UtilisateurService {
@@ -37,6 +38,7 @@ public class UtilisateurService {
         utilisateur.setMotDePasse(
                 passwordEncoder.encode(utilisateur.getMotDePasse())
         );
+        utilisateur.setActif(true);
         if (utilisateur.getDateCreation() == null) {
             utilisateur.setDateCreation(LocalDateTime.now());
         }
@@ -93,6 +95,23 @@ public class UtilisateurService {
         return utilisateurRepository.save(utilisateur);
     }
 
+    public Utilisateur changerStatutUtilisateur(
+            Long id,
+            boolean actif,
+            String emailAdministrateurCourant) {
+
+        Utilisateur utilisateur = utilisateurRepository.findById(id)
+                .orElseThrow(() ->
+                        new IllegalArgumentException("Utilisateur introuvable."));
+
+        if (!actif && utilisateur.isActif()) {
+            verifierDesactivation(utilisateur, emailAdministrateurCourant);
+        }
+
+        utilisateur.setActif(actif);
+        return utilisateurRepository.save(utilisateur);
+    }
+
     public void supprimerUtilisateur(Long id, String emailUtilisateurCourant) {
 
         Utilisateur utilisateur = utilisateurRepository.findById(id)
@@ -106,7 +125,8 @@ public class UtilisateurService {
         }
 
         if (utilisateur.getRole() == Role.ADMIN
-                && utilisateurRepository.countByRole(Role.ADMIN) <= 1) {
+                && utilisateur.isActif()
+                && utilisateurRepository.countByRoleAndActifTrue(Role.ADMIN) <= 1) {
             throw new IllegalArgumentException(
                     "Le dernier administrateur ne peut pas être supprimé."
             );
@@ -156,9 +176,27 @@ public class UtilisateurService {
             );
         }
 
-        if (utilisateurRepository.countByRole(Role.ADMIN) <= 1) {
+        if (utilisateur.isActif()
+                && utilisateurRepository.countByRoleAndActifTrue(Role.ADMIN) <= 1) {
             throw new IllegalArgumentException(
                     "Le rôle du dernier administrateur ne peut pas être retiré."
+            );
+        }
+    }
+
+    private void verifierDesactivation(
+            Utilisateur utilisateur,
+            String emailAdministrateurCourant) {
+        if (utilisateur.getEmail().equalsIgnoreCase(emailAdministrateurCourant)) {
+            throw new IllegalArgumentException(
+                    "Un administrateur ne peut pas désactiver son propre compte."
+            );
+        }
+
+        if (utilisateur.getRole() == Role.ADMIN
+                && utilisateurRepository.countByRoleAndActifTrue(Role.ADMIN) <= 1) {
+            throw new IllegalArgumentException(
+                    "Le dernier administrateur actif ne peut pas être désactivé."
             );
         }
     }

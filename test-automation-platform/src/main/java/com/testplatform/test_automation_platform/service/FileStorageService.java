@@ -164,7 +164,19 @@ public class FileStorageService {
 
     public void supprimerProjet(String chemin) {
 
-        Path path = Paths.get(chemin);
+        if (chemin == null || chemin.isBlank()) {
+            return;
+        }
+
+        Path path = Paths.get(chemin)
+                .toAbsolutePath()
+                .normalize();
+
+        if (!estCheminProjetAutorise(chemin)) {
+            throw new IllegalArgumentException(
+                    "Le dossier du projet se trouve hors du répertoire d'import autorisé."
+            );
+        }
 
         if (!Files.exists(path)) {
             return;
@@ -176,18 +188,35 @@ public class FileStorageService {
                     .forEach(p -> {
                         try {
                             Files.deleteIfExists(p);
-                            System.out.println("Supprimé : " + p);
                         } catch (IOException e) {
-                            System.out.println("Impossible : " + p);
-                            e.printStackTrace();
+                            throw new IllegalStateException(
+                                    "Impossible de supprimer le fichier : " + p,
+                                    e
+                            );
                         }
                     });
 
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new IllegalStateException(
+                    "Impossible de parcourir le dossier du projet.",
+                    e
+            );
+        }
+    }
+
+    public boolean estCheminProjetAutorise(String chemin) {
+        if (chemin == null || chemin.isBlank()) {
+            return false;
         }
 
-        System.out.println("Le dossier existe encore ? " + Files.exists(path));
+        Path dossierUpload = Paths.get(uploadDirectory)
+                .toAbsolutePath()
+                .normalize();
+        Path path = Paths.get(chemin)
+                .toAbsolutePath()
+                .normalize();
+
+        return !path.equals(dossierUpload) && path.startsWith(dossierUpload);
     }
 
     public String clonerProjetGithub(String urlGithub)
