@@ -52,11 +52,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.options;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.hamcrest.Matchers.containsString;
 
 @SpringBootTest(properties = {
         "security.jwt.key-directory=target/test-jwt-keys",
@@ -203,6 +207,157 @@ class SecurityIntegrationTests {
         mockMvc.perform(get("/api/utilisateurs").with(jwtAdministrateur()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[*].motDePasse").doesNotExist());
+    }
+
+    @Test
+    void corsAutorisePatchDepuisLeFrontend() throws Exception {
+        mockMvc.perform(options("/api/utilisateurs/{id}/desactiver", proprietaire.getId())
+                        .header("Origin", "http://localhost:5173")
+                        .header("Access-Control-Request-Method", "PATCH"))
+                .andExpect(status().isOk())
+                .andExpect(header().string(
+                        "Access-Control-Allow-Origin",
+                        "http://localhost:5173"
+                ))
+                .andExpect(header().string(
+                        "Access-Control-Allow-Methods",
+                        containsString("PATCH")
+                ));
+    }
+
+    @Test
+    void administrateurPeutCreerPuisModifierUnUtilisateur()
+            throws Exception {
+        String email = "managed-user-" + UUID.randomUUID() + "@example.invalid";
+
+        mockMvc.perform(post("/api/utilisateurs")
+                        .with(jwtAdministrateur())
+                        .contentType("application/json")
+                        .content("""
+                                {
+                                  "nom": "Utilisateur géré",
+                                  "email": "%s",
+                                  "motDePasse": "MotDePasse123!",
+                                  "role": "DEVELOPPEUR"
+                                }
+                                """.formatted(email)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.email").value(email))
+                .andExpect(jsonPath("$.role").value("DEVELOPPEUR"))
+                .andExpect(jsonPath("$.motDePasse").doesNotExist());
+
+        Utilisateur utilisateur = utilisateurRepository
+                .findByEmailIgnoreCase(email)
+                .orElseThrow();
+
+        mockMvc.perform(put("/api/utilisateurs/{id}", utilisateur.getId())
+                        .with(jwtAdministrateur())
+                        .contentType("application/json")
+                        .content("""
+                                {
+                                  "nom": "Utilisateur modifié",
+                                  "email": "%s",
+                                  "role": "ADMIN"
+                                }
+                                """.formatted(email)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.nom").value("Utilisateur modifié"))
+                .andExpect(jsonPath("$.role").value("ADMIN"));
+    }
+
+    @Test
+    void suppressionUtilisateurNettoieSesDonneesAssociees()
+            throws Exception {
+        Utilisateur utilisateur = utilisateurRepository.save(Utilisateur.builder()
+                .nom("Utilisateur à supprimer")
+                .email("delete-user-" + UUID.randomUUID() + "@example.invalid")
+                .motDePasse("hash-inutilise-dans-ce-test")
+                .role(Role.DEVELOPPEUR)
+                .dateCreation(LocalDateTime.now())
+                .build());
+
+        Projet projet = projetRepository.save(Projet.builder()
+                .nom("Projet de l'utilisateur supprimé")
+                .description("Projet avec dépendances")
+                .typeSource(TypeSource.GITHUB)
+                .dateImport(LocalDateTime.now())
+                .statut(StatutProjet.IMPORTE)
+                .cheminLocal("uploads/delete-user-test-" + UUID.randomUUID())
+                .projectKey("delete-user-test-" + UUID.randomUUID())
+                .utilisateur(utilisateur)
+                .build());
+
+        ConfigurationTest configuration = configurationTestRepository.save(
+                ConfigurationTest.builder()
+                        .projet(projet)
+                        .testsUnitaires(true)
+                        .dateConfiguration(LocalDateTime.now())
+                        .build()
+        );
+
+        ExecutionTest execution = new ExecutionTest();
+        execution.setProjet(projet);
+        execution.setConfigurationTest(configuration);
+        execution.setStatut(StatutExecution.TERMINEE);
+        execution.setDateDebut(LocalDateTime.now());
+        execution = executionTestRepository.save(execution);
+
+        ResultatTest resultat = resultatTestRepository.save(ResultatTest.builder()
+                .executionTest(execution)
+                .type(TypeTest.UNITAIRE)
+                .nomTest("testSuppressionUtilisateur")
+                .statut(StatutTest.REUSSI)
+                .build());
+
+        Rapport rapport = rapportRepository.save(Rapport.builder()
+                .nom("Rapport utilisateur supprimé")
+                .type(TypeRapport.TESTS)
+                .execution(execution)
+                .dateGeneration(LocalDateTime.now())
+                .build());
+
+        Notification notificationExecution = notificationRepository.save(
+                Notification.builder()
+                        .message("Notification liée à l'exécution")
+                        .type(TypeNotification.SUCCES)
+                        .utilisateur(utilisateur)
+                        .execution(execution)
+                        .dateEnvoi(LocalDateTime.now())
+                        .build()
+        );
+        Notification notificationSimple = notificationRepository.save(
+                Notification.builder()
+                        .message("Notification sans exécution")
+                        .type(TypeNotification.INFORMATION)
+                        .utilisateur(utilisateur)
+                        .dateEnvoi(LocalDateTime.now())
+                        .build()
+        );
+
+        Long utilisateurId = utilisateur.getId();
+        Long projetId = projet.getId();
+        Long configurationId = configuration.getId();
+        Long executionId = execution.getId();
+        Long resultatId = resultat.getId();
+        Long rapportId = rapport.getId();
+        Long notificationExecutionId = notificationExecution.getId();
+        Long notificationSimpleId = notificationSimple.getId();
+
+        entityManager.flush();
+        entityManager.clear();
+
+        mockMvc.perform(delete("/api/utilisateurs/{id}", utilisateurId)
+                        .with(jwtAdministrateur()))
+                .andExpect(status().isNoContent());
+
+        assertThat(utilisateurRepository.existsById(utilisateurId)).isFalse();
+        assertThat(projetRepository.existsById(projetId)).isFalse();
+        assertThat(configurationTestRepository.existsById(configurationId)).isFalse();
+        assertThat(executionTestRepository.existsById(executionId)).isFalse();
+        assertThat(resultatTestRepository.existsById(resultatId)).isFalse();
+        assertThat(rapportRepository.existsById(rapportId)).isFalse();
+        assertThat(notificationRepository.existsById(notificationExecutionId)).isFalse();
+        assertThat(notificationRepository.existsById(notificationSimpleId)).isFalse();
     }
 
     @Test

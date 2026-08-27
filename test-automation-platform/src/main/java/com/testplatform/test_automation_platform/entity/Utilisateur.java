@@ -34,8 +34,13 @@ public class Utilisateur {
     private Role role;
 
     @Builder.Default
+    @Getter(AccessLevel.NONE)
     @Column(nullable = false, columnDefinition = "boolean default true")
-    private boolean actif = true;
+    private Boolean actif = true;
 
     private LocalDateTime dateCreation;
+
+    public boolean isActif() {
+        return Boolean.TRUE.equals(actif);
+    }
 }

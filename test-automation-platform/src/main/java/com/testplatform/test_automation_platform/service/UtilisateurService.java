@@ -7,9 +7,13 @@ import java.util.Optional;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.testplatform.test_automation_platform.entity.Projet;
 import com.testplatform.test_automation_platform.entity.Utilisateur;
 import com.testplatform.test_automation_platform.enums.Role;
+import com.testplatform.test_automation_platform.repository.NotificationRepository;
+import com.testplatform.test_automation_platform.repository.ProjetRepository;
 import com.testplatform.test_automation_platform.repository.UtilisateurRepository;
 
 @Service
@@ -17,12 +21,21 @@ public class UtilisateurService {
 
     private final UtilisateurRepository utilisateurRepository;
     private final PasswordEncoder passwordEncoder;
+    private final ProjetRepository projetRepository;
+    private final ProjetService projetService;
+    private final NotificationRepository notificationRepository;
 
     public UtilisateurService(
             UtilisateurRepository utilisateurRepository,
-            PasswordEncoder passwordEncoder) {
+            PasswordEncoder passwordEncoder,
+            ProjetRepository projetRepository,
+            ProjetService projetService,
+            NotificationRepository notificationRepository) {
         this.utilisateurRepository = utilisateurRepository;
         this.passwordEncoder = passwordEncoder;
+        this.projetRepository = projetRepository;
+        this.projetService = projetService;
+        this.notificationRepository = notificationRepository;
     }
 
     public Utilisateur creerUtilisateur(Utilisateur utilisateur) {
@@ -112,6 +125,7 @@ public class UtilisateurService {
         return utilisateurRepository.save(utilisateur);
     }
 
+    @Transactional
     public void supprimerUtilisateur(Long id, String emailUtilisateurCourant) {
 
         Utilisateur utilisateur = utilisateurRepository.findById(id)
@@ -132,7 +146,18 @@ public class UtilisateurService {
             );
         }
 
+        List<Projet> projets = projetRepository.findByUtilisateur(utilisateur);
+        for (Projet projet : projets) {
+            projetService.supprimerProjet(projet.getId());
+        }
+
+        notificationRepository.deleteAll(
+                notificationRepository.findByUtilisateur(utilisateur)
+        );
+        notificationRepository.flush();
+
         utilisateurRepository.delete(utilisateur);
+        utilisateurRepository.flush();
     }
 
     private void validerNouvelUtilisateur(Utilisateur utilisateur) {

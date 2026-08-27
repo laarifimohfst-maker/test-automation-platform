@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Eye, EyeOff, LoaderCircle, LockKeyhole, Mail, ShieldCheck } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
-import useAuth from '../hooks/useAuth';
-import illustration from '../assets/logo.png';
+import useAuth from '../../hooks/useAuth';
+import illustration from '../../assets/logo.png';
 import './Login.css';
 
 function Login() {

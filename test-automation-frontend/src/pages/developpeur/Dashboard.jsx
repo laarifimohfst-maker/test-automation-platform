@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
-import { obtenirDashboard } from '../services/dashboardService';
-import StatCard from '../components/StatCard';
+import { obtenirDashboard } from '../../services/dashboardService';
+import StatCard from '../../components/StatCard';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { Folder, Play, CheckCircle, XCircle, AlertCircle, Shield } from 'lucide-react';
 import './Dashboard.css';
-import { obtenirUtilisateurId } from '../services/authStorage';
+import { obtenirUtilisateurId } from '../../services/authStorage';
 
 function Dashboard() {
   const [donnees, setDonnees] = useState(null);

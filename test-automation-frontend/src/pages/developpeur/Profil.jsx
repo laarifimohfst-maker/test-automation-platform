@@ -11,10 +11,10 @@ import {
 import {
   modifierUtilisateur,
   obtenirUtilisateurParId,
-} from '../services/utilisateurService';
+} from '../../services/utilisateurService';
 
 import './Profil.css';
-import { enregistrerUtilisateur, obtenirUtilisateurId } from '../services/authStorage';
+import { enregistrerUtilisateur, obtenirUtilisateurId } from '../../services/authStorage';
 
 function Profil() {
   const [utilisateur, setUtilisateur] = useState(null);

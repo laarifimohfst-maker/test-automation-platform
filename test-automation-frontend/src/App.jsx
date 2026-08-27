@@ -1,16 +1,18 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import Sidebar from './components/Sidebar';
 import Header from './components/Header';
-import Dashboard from './pages/Dashboard';
-import Projets from './pages/Projets';
-import ConfigurationTest from './pages/ConfigurationTest';
-import Executions from './pages/Executions';
-import ResultatsTests from './pages/ResultatsTests';
-import AnalyseQualite from './pages/AnalyseQualite';
-import Profil from './pages/Profil';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import AdminAccueil from './pages/AdminAccueil';
+import Dashboard from './pages/developpeur/Dashboard';
+import Projets from './pages/developpeur/Projets';
+import ConfigurationTest from './pages/developpeur/ConfigurationTest';
+import Executions from './pages/developpeur/Executions';
+import ResultatsTests from './pages/developpeur/ResultatsTests';
+import AnalyseQualite from './pages/developpeur/AnalyseQualite';
+import Profil from './pages/developpeur/Profil';
+import Login from './pages/auth/Login';
+import Register from './pages/auth/Register';
+import AdminAccueil from './pages/admin/AdminAccueil';
+import AdminUtilisateurs from './pages/admin/AdminUtilisateurs';
+import AdminLayout from './components/admin/AdminLayout';
 import useAuth from './hooks/useAuth';
 import { AlertDialogProvider } from './components/AlertDialog';
 
@@ -88,10 +90,15 @@ function App() {
         path="/admin"
         element={
           <RouteProtegee role="ADMIN">
-            <AdminAccueil />
+            <AlertDialogProvider>
+              <AdminLayout />
+            </AlertDialogProvider>
           </RouteProtegee>
         }
-      />
+      >
+        <Route index element={<AdminAccueil />} />
+        <Route path="utilisateurs" element={<AdminUtilisateurs />} />
+      </Route>
       <Route
         path="/*"
         element={
