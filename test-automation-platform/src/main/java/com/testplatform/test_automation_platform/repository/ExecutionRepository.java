@@ -2,6 +2,7 @@ package com.testplatform.test_automation_platform.repository;
 
 import com.testplatform.test_automation_platform.entity.Execution;
 import com.testplatform.test_automation_platform.entity.Projet;
+import com.testplatform.test_automation_platform.enums.StatutExecution;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -27,4 +28,8 @@ public interface ExecutionRepository extends JpaRepository<Execution, Long> {
 
     @Query("SELECT e FROM Execution e WHERE e.projet.utilisateur.id = :utilisateurId ORDER BY e.dateDebut DESC")
     List<Execution> findDernieresExecutionsParUtilisateur(@Param("utilisateurId") Long utilisateurId, Pageable pageable);
+
+    long countByStatut(StatutExecution statut);
+
+    List<Execution> findTop5ByOrderByDateDebutDesc();
 }

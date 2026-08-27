@@ -15,4 +15,10 @@ public interface UtilisateurRepository extends JpaRepository<Utilisateur, Long> 
     boolean existsByEmailIgnoreCaseAndIdNot(String email, Long id);
 
     long countByRoleAndActifTrue(Role role);
+
+    long countByRole(Role role);
+
+    long countByActifTrue();
+
+    long countByActifFalse();
 }

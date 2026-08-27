@@ -24,4 +24,6 @@ public interface ResultatTestRepository extends JpaRepository<ResultatTest, Long
     @Query("SELECT COUNT(r) FROM ResultatTest r WHERE r.executionTest.projet.utilisateur.id = :utilisateurId AND r.statut = :statut")
     long countByUtilisateurEtStatut(@Param("utilisateurId") Long utilisateurId, @Param("statut") StatutTest statut);
 
+    long countByStatut(StatutTest statut);
+
 }

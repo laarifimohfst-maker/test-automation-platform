@@ -14,6 +14,10 @@ public interface RapportRepository extends JpaRepository<Rapport, Long> {
 
     List<Rapport> findByType(TypeRapport type);
 
+    long countByType(TypeRapport type);
+
+    List<Rapport> findTop5ByOrderByDateGenerationDesc();
+
     Optional<Rapport> findByExecution_Id(Long executionId);
 
     @Modifying

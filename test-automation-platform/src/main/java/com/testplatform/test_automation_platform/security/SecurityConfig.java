@@ -96,6 +96,8 @@ public class SecurityConfig {
                                 "/api/auth/login",
                                 "/api/auth/register"
                         ).permitAll()
+                        .requestMatchers("/api/admin/**")
+                        .hasRole("ADMIN")
                         .requestMatchers(
                                 HttpMethod.GET,
                                 "/api/utilisateurs",

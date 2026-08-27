@@ -16,6 +16,7 @@ import com.testplatform.test_automation_platform.enums.TypeRapport;
 import com.testplatform.test_automation_platform.enums.TypeSource;
 import com.testplatform.test_automation_platform.enums.TypeTest;
 import com.testplatform.test_automation_platform.repository.ConfigurationTestRepository;
+import com.testplatform.test_automation_platform.repository.ExecutionRepository;
 import com.testplatform.test_automation_platform.repository.ExecutionTestRepository;
 import com.testplatform.test_automation_platform.repository.NotificationRepository;
 import com.testplatform.test_automation_platform.repository.ProjetRepository;
@@ -92,6 +93,9 @@ class SecurityIntegrationTests {
 
     @Autowired
     private ExecutionTestRepository executionTestRepository;
+
+    @Autowired
+    private ExecutionRepository executionRepository;
 
     @Autowired
     private ResultatTestRepository resultatTestRepository;
@@ -503,6 +507,73 @@ class SecurityIntegrationTests {
                 .andExpect(jsonPath("$.message").value(
                         "Le fichier du rapport se trouve hors du dossier autorisé."
                 ));
+    }
+
+    @Test
+    void administrateurPeutConsulterLeDashboardGlobal() throws Exception {
+        LocalDateTime dateRecente = LocalDateTime.of(2099, 1, 1, 12, 0);
+        Projet projet = creerProjetTest(
+                "Projet dashboard administration",
+                TypeSource.GITHUB
+        );
+        projet.setDateImport(dateRecente);
+        projet = projetRepository.save(projet);
+
+        ExecutionTest execution = creerExecutionTest(projet);
+        execution.setDateDebut(dateRecente);
+        execution = executionTestRepository.save(execution);
+
+        resultatTestRepository.save(ResultatTest.builder()
+                .executionTest(execution)
+                .type(TypeTest.UNITAIRE)
+                .nomTest("testDashboardAdministration")
+                .statut(StatutTest.REUSSI)
+                .build());
+
+        Rapport rapport = rapportRepository.save(Rapport.builder()
+                .nom("Rapport dashboard administration")
+                .type(TypeRapport.TESTS)
+                .execution(execution)
+                .dateGeneration(dateRecente)
+                .build());
+
+        mockMvc.perform(get("/api/admin/dashboard")
+                        .with(jwtAdministrateur()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.utilisateurs.total")
+                        .value(utilisateurRepository.count()))
+                .andExpect(jsonPath("$.projets.total")
+                        .value(projetRepository.count()))
+                .andExpect(jsonPath("$.executions.total")
+                        .value(executionRepository.count()))
+                .andExpect(jsonPath("$.tests.total")
+                        .value(resultatTestRepository.count()))
+                .andExpect(jsonPath("$.rapports.total")
+                        .value(rapportRepository.count()))
+                .andExpect(jsonPath("$.activiteRecente.derniersProjets[0].id")
+                        .value(projet.getId()))
+                .andExpect(jsonPath("$.activiteRecente.dernieresExecutions[0].id")
+                        .value(execution.getId()))
+                .andExpect(jsonPath("$.activiteRecente.derniersRapports[0].id")
+                        .value(rapport.getId()))
+                .andExpect(jsonPath(
+                        "$.activiteRecente.derniersProjets[0].cheminLocal"
+                ).doesNotExist())
+                .andExpect(jsonPath(
+                        "$.activiteRecente.derniersRapports[0].cheminFichier"
+                ).doesNotExist())
+                .andExpect(jsonPath(
+                        "$.activiteRecente.derniersProjets[0].utilisateur.motDePasse"
+                ).doesNotExist());
+    }
+
+    @Test
+    void developpeurNePeutPasConsulterLeDashboardAdministrateur()
+            throws Exception {
+        mockMvc.perform(get("/api/admin/dashboard")
+                        .with(jwtDeveloppeur(proprietaire.getEmail())))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.message").value("Accès interdit."));
     }
 
     @Test
