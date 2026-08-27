@@ -24,7 +24,6 @@ import com.testplatform.test_automation_platform.repository.ConfigurationTestRep
 import com.testplatform.test_automation_platform.repository.ExecutionRepository;
 import com.testplatform.test_automation_platform.repository.NotificationRepository;
 import com.testplatform.test_automation_platform.repository.ProjetRepository;
-import com.testplatform.test_automation_platform.repository.RapportRepository;
 import com.testplatform.test_automation_platform.repository.ResultatTestRepository;
 
 @Service
@@ -36,7 +35,7 @@ public class ProjetService {
     private final ConfigurationTestRepository configurationTestRepository;
     private final ResultatTestRepository resultatTestRepository;
     private final AnalyseQualiteRepository analyseQualiteRepository;
-    private final RapportRepository rapportRepository;
+    private final RapportService rapportService;
     private final NotificationRepository notificationRepository;
 
     public ProjetService(
@@ -46,7 +45,7 @@ public class ProjetService {
             ConfigurationTestRepository configurationTestRepository,
             ResultatTestRepository resultatTestRepository,
             AnalyseQualiteRepository analyseQualiteRepository,
-            RapportRepository rapportRepository,
+            RapportService rapportService,
             NotificationRepository notificationRepository) {
 
         this.projetRepository = projetRepository;
@@ -55,7 +54,7 @@ public class ProjetService {
         this.configurationTestRepository = configurationTestRepository;
         this.resultatTestRepository = resultatTestRepository;
         this.analyseQualiteRepository = analyseQualiteRepository;
-        this.rapportRepository = rapportRepository;
+        this.rapportService = rapportService;
         this.notificationRepository = notificationRepository;
     }
 
@@ -185,7 +184,7 @@ public class ProjetService {
             Long executionId = execution.getId();
 
             notificationRepository.deleteByExecutionId(executionId);
-            rapportRepository.deleteByExecutionId(executionId);
+            rapportService.supprimerRapportParExecution(executionId);
 
             if (execution instanceof ExecutionTest) {
                 resultatTestRepository.deleteByExecutionId(executionId);

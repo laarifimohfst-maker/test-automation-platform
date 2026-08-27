@@ -29,6 +29,7 @@ import jakarta.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -40,6 +41,9 @@ import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.UUID;
 
@@ -397,6 +401,111 @@ class SecurityIntegrationTests {
     }
 
     @Test
+    void administrateurPeutFiltrerLesRapportsParProjetEtUtilisateur()
+            throws Exception {
+        Projet projet = creerProjetTest(
+                "Projet rapports administration",
+                TypeSource.GITHUB
+        );
+        ExecutionTest execution = creerExecutionTest(projet);
+        Rapport rapport = rapportRepository.save(Rapport.builder()
+                .nom("Rapport recherché administration")
+                .type(TypeRapport.TESTS)
+                .execution(execution)
+                .dateGeneration(LocalDateTime.now())
+                .build());
+
+        mockMvc.perform(get("/api/rapports")
+                        .param("recherche", "recherché")
+                        .param("utilisateurId", proprietaire.getId().toString())
+                        .param("projetId", projet.getId().toString())
+                        .param("type", "TESTS")
+                        .with(jwtAdministrateur()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(rapport.getId()))
+                .andExpect(jsonPath("$[0].execution.projet.id")
+                        .value(projet.getId()));
+    }
+
+    @Test
+    void developpeurNePeutPasConsulterLaListeGlobaleDesRapports()
+            throws Exception {
+        mockMvc.perform(get("/api/rapports")
+                        .with(jwtDeveloppeur(proprietaire.getEmail())))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.message").value("Accès interdit."));
+    }
+
+    @Test
+    void administrateurPeutTelechargerPuisSupprimerUnRapportEtSonPdf()
+            throws Exception {
+        Projet projet = creerProjetTest(
+                "Projet téléchargement rapport",
+                TypeSource.ARCHIVE_ZIP
+        );
+        ExecutionTest execution = creerExecutionTest(projet);
+        Path dossierRapports = Paths.get("reports").toAbsolutePath().normalize();
+        Files.createDirectories(dossierRapports);
+        Path fichier = Files.createTempFile(
+                dossierRapports,
+                "rapport-admin-test-",
+                ".pdf"
+        );
+        byte[] contenuPdf = new byte[]{37, 80, 68, 70, 45, 49, 46, 52};
+        Files.write(fichier, contenuPdf);
+
+        try {
+            Rapport rapport = rapportRepository.save(Rapport.builder()
+                    .nom("Rapport sécurisé")
+                    .type(TypeRapport.TESTS)
+                    .execution(execution)
+                    .cheminFichier(fichier.toString())
+                    .taille((long) contenuPdf.length)
+                    .dateGeneration(LocalDateTime.now())
+                    .build());
+
+            mockMvc.perform(get("/api/rapports/{id}/download", rapport.getId())
+                            .with(jwtAdministrateur()))
+                    .andExpect(status().isOk())
+                    .andExpect(content().contentType(MediaType.APPLICATION_PDF))
+                    .andExpect(content().bytes(contenuPdf));
+
+            mockMvc.perform(delete("/api/rapports/{id}", rapport.getId())
+                            .with(jwtAdministrateur()))
+                    .andExpect(status().isNoContent());
+
+            assertThat(rapportRepository.existsById(rapport.getId())).isFalse();
+            assertThat(Files.exists(fichier)).isFalse();
+        } finally {
+            Files.deleteIfExists(fichier);
+        }
+    }
+
+    @Test
+    void telechargementRefuseUnFichierSitueHorsDuDossierRapports()
+            throws Exception {
+        Projet projet = creerProjetTest(
+                "Projet rapport externe",
+                TypeSource.GITHUB
+        );
+        ExecutionTest execution = creerExecutionTest(projet);
+        Rapport rapport = rapportRepository.save(Rapport.builder()
+                .nom("Rapport externe interdit")
+                .type(TypeRapport.TESTS)
+                .execution(execution)
+                .cheminFichier("src/main/resources/application.properties")
+                .dateGeneration(LocalDateTime.now())
+                .build());
+
+        mockMvc.perform(get("/api/rapports/{id}/download", rapport.getId())
+                        .with(jwtAdministrateur()))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value(
+                        "Le fichier du rapport se trouve hors du dossier autorisé."
+                ));
+    }
+
+    @Test
     void convertisseurJwtLitLeClaimRoles() {
         Jwt jwt = Jwt.withTokenValue("token-test")
                 .header("alg", "RS256")
@@ -450,6 +559,23 @@ class SecurityIntegrationTests {
                 .projectKey("admin-test-" + UUID.randomUUID())
                 .utilisateur(proprietaire)
                 .build());
+    }
+
+    private ExecutionTest creerExecutionTest(Projet projet) {
+        ConfigurationTest configuration = configurationTestRepository.save(
+                ConfigurationTest.builder()
+                        .projet(projet)
+                        .testsUnitaires(true)
+                        .dateConfiguration(LocalDateTime.now())
+                        .build()
+        );
+
+        ExecutionTest execution = new ExecutionTest();
+        execution.setProjet(projet);
+        execution.setConfigurationTest(configuration);
+        execution.setStatut(StatutExecution.TERMINEE);
+        execution.setDateDebut(LocalDateTime.now());
+        return executionTestRepository.save(execution);
     }
 
     private RequestPostProcessor jwtAdministrateur() {

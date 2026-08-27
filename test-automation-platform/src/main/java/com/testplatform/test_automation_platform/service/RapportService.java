@@ -15,6 +15,8 @@ import com.testplatform.test_automation_platform.repository.ExecutionRepository;
 import com.testplatform.test_automation_platform.repository.RapportRepository;
 import com.testplatform.test_automation_platform.repository.ResultatTestRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Sort;
+import org.springframework.transaction.annotation.Transactional;
 import com.testplatform.test_automation_platform.entity.AnalyseQualite;
 import com.testplatform.test_automation_platform.repository.AnalyseQualiteRepository;
 import org.springframework.core.io.ClassPathResource;
@@ -25,6 +27,7 @@ import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Locale;
 import java.util.stream.Collectors;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -89,6 +92,52 @@ public class RapportService {
         return rapportRepository.findAll();
     }
 
+    @Transactional(readOnly = true)
+    public List<Rapport> rechercherRapportsAdministration(
+            String recherche,
+            Long utilisateurId,
+            Long projetId,
+            TypeRapport type) {
+
+        String texteRecherche = recherche == null
+                ? ""
+                : recherche.trim().toLowerCase(Locale.ROOT);
+
+        return rapportRepository
+                .findAll(Sort.by(Sort.Direction.DESC, "dateGeneration"))
+                .stream()
+                .filter(rapport -> type == null || rapport.getType() == type)
+                .filter(rapport -> projetId == null
+                        || rapport.getExecution().getProjet().getId().equals(projetId))
+                .filter(rapport -> utilisateurId == null
+                        || rapport.getExecution()
+                        .getProjet()
+                        .getUtilisateur()
+                        .getId()
+                        .equals(utilisateurId))
+                .filter(rapport -> texteRecherche.isEmpty()
+                        || contientIgnoreCase(rapport.getNom(), texteRecherche)
+                        || contientIgnoreCase(
+                                rapport.getExecution().getProjet().getNom(),
+                                texteRecherche
+                        )
+                        || contientIgnoreCase(
+                                rapport.getExecution()
+                                .getProjet()
+                                .getUtilisateur()
+                                .getNom(),
+                                texteRecherche
+                        )
+                        || contientIgnoreCase(
+                                rapport.getExecution()
+                                .getProjet()
+                                .getUtilisateur()
+                                .getEmail(),
+                                texteRecherche
+                        ))
+                .toList();
+    }
+
     public Rapport modifierRapport(Long id, Rapport rapportModifie) {
         Rapport rapport = obtenirRapportParId(id);
 
@@ -99,11 +148,47 @@ public class RapportService {
         return rapportRepository.save(rapport);
     }
 
+    @Transactional
     public void supprimerRapport(Long id) {
-        if (!rapportRepository.existsById(id)) {
-            throw new IllegalArgumentException("Rapport introuvable.");
+        Rapport rapport = obtenirRapportParId(id);
+        rapportRepository.delete(rapport);
+        rapportRepository.flush();
+        supprimerFichierRapport(rapport.getCheminFichier());
+    }
+
+    @Transactional
+    public void supprimerRapportParExecution(Long executionId) {
+        rapportRepository.findByExecution_Id(executionId)
+                .ifPresent(rapport -> {
+                    rapportRepository.delete(rapport);
+                    rapportRepository.flush();
+                    supprimerFichierRapport(rapport.getCheminFichier());
+                });
+    }
+
+    public byte[] lireFichierRapport(Long id) {
+        Rapport rapport = obtenirRapportParId(id);
+
+        if (rapport.getCheminFichier() == null
+                || rapport.getCheminFichier().isBlank()) {
+            throw new IllegalArgumentException(
+                    "Aucun fichier n'est associé à ce rapport."
+            );
         }
-        rapportRepository.deleteById(id);
+
+        Path chemin = resoudreCheminRapport(rapport.getCheminFichier());
+        if (!Files.isRegularFile(chemin)) {
+            throw new IllegalArgumentException("Fichier du rapport introuvable.");
+        }
+
+        try {
+            return Files.readAllBytes(chemin);
+        } catch (Exception exception) {
+            throw new IllegalStateException(
+                    "Impossible de lire le fichier du rapport.",
+                    exception
+            );
+        }
     }
 
     public Rapport genererRapportTests(Long executionId) {
@@ -392,6 +477,51 @@ public class RapportService {
                 .replace("${qualityGateStatus}", String.valueOf(analyse.getQualityGateStatus()))
                 .replace("${qualityGateClass}", qualityGateClass)
                 .replace("${blocIssues}", blocIssues);
+    }
+
+    private void supprimerFichierRapport(String cheminFichier) {
+        if (cheminFichier == null || cheminFichier.isBlank()) {
+            return;
+        }
+
+        Path chemin;
+        try {
+            chemin = resoudreCheminRapport(cheminFichier);
+        } catch (IllegalArgumentException exception) {
+            return;
+        }
+
+        try {
+            Files.deleteIfExists(chemin);
+        } catch (Exception exception) {
+            throw new IllegalStateException(
+                    "Impossible de supprimer le fichier du rapport.",
+                    exception
+            );
+        }
+    }
+
+    private Path resoudreCheminRapport(String cheminFichier) {
+        Path dossierRapports = Paths.get("reports")
+                .toAbsolutePath()
+                .normalize();
+        Path chemin = Paths.get(cheminFichier)
+                .toAbsolutePath()
+                .normalize();
+
+        if (chemin.equals(dossierRapports)
+                || !chemin.startsWith(dossierRapports)) {
+            throw new IllegalArgumentException(
+                    "Le fichier du rapport se trouve hors du dossier autorisé."
+            );
+        }
+
+        return chemin;
+    }
+
+    private boolean contientIgnoreCase(String valeur, String recherche) {
+        return valeur != null
+                && valeur.toLowerCase(Locale.ROOT).contains(recherche);
     }
 
     private String echapperHtml(Object valeur) {

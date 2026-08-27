@@ -8,9 +8,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import org.springframework.http.ContentDisposition;
+import java.nio.charset.StandardCharsets;
 
 import java.util.List;
 
@@ -46,20 +45,21 @@ public class RapportController {
 
     @GetMapping("/{id}/download")
     @PreAuthorize("@authorizationService.peutAccederRapport(#p0, authentication)")
-    public ResponseEntity<byte[]> telechargerRapport(@PathVariable Long id) throws IOException {
+    public ResponseEntity<byte[]> telechargerRapport(@PathVariable Long id) {
 
         Rapport rapport = rapportService.obtenirRapportParId(id);
-
-        if (rapport.getCheminFichier() == null) {
-            return ResponseEntity.notFound().build();
-        }
-
-        byte[] fichier = Files.readAllBytes(Paths.get(rapport.getCheminFichier()));
+        byte[] fichier = rapportService.lireFichierRapport(id);
+        String nomFichier = rapport.getNom() == null || rapport.getNom().isBlank()
+                ? "rapport-" + id + ".pdf"
+                : rapport.getNom() + ".pdf";
 
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_PDF)
                 .header(HttpHeaders.CONTENT_DISPOSITION,
-                        "attachment; filename=\"" + rapport.getNom() + ".pdf\"")
+                        ContentDisposition.attachment()
+                                .filename(nomFichier, StandardCharsets.UTF_8)
+                                .build()
+                                .toString())
                 .body(fichier);
     }
 
@@ -76,8 +76,19 @@ public class RapportController {
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<Rapport>> obtenirTousLesRapports() {
-        return ResponseEntity.ok(rapportService.obtenirTousLesRapports());
+    public ResponseEntity<List<Rapport>> obtenirTousLesRapports(
+            @RequestParam(required = false) String recherche,
+            @RequestParam(required = false) Long utilisateurId,
+            @RequestParam(required = false) Long projetId,
+            @RequestParam(required = false) TypeRapport type) {
+        return ResponseEntity.ok(
+                rapportService.rechercherRapportsAdministration(
+                        recherche,
+                        utilisateurId,
+                        projetId,
+                        type
+                )
+        );
     }
 
     @GetMapping("/{id}")
