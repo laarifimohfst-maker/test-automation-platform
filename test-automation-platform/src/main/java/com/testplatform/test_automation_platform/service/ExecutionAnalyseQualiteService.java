@@ -10,6 +10,7 @@ import com.testplatform.test_automation_platform.entity.ExecutionAnalyseQualite;
 import com.testplatform.test_automation_platform.entity.Projet;
 import com.testplatform.test_automation_platform.enums.StatutExecution;
 import com.testplatform.test_automation_platform.repository.ExecutionAnalyseQualiteRepository;
+import com.testplatform.test_automation_platform.repository.AnalyseQualiteRepository;
 import com.testplatform.test_automation_platform.repository.NotificationRepository;
 
 @Service
@@ -17,6 +18,8 @@ public class ExecutionAnalyseQualiteService {
 
     private final ExecutionAnalyseQualiteRepository executionRepository;
     private final NotificationRepository notificationRepository;
+    private final AnalyseQualiteRepository analyseQualiteRepository;
+    private final RapportService rapportService;
 
     private final SonarQubeService sonarQubeService;
     private final MavenExecutionService mavenExecutionService;
@@ -26,6 +29,8 @@ public class ExecutionAnalyseQualiteService {
     public ExecutionAnalyseQualiteService(
             ExecutionAnalyseQualiteRepository executionRepository,
             NotificationRepository notificationRepository,
+            AnalyseQualiteRepository analyseQualiteRepository,
+            RapportService rapportService,
             SonarQubeService sonarQubeService,
             MavenExecutionService mavenExecutionService,
             AnalyseQualiteService analyseQualiteService,
@@ -33,6 +38,8 @@ public class ExecutionAnalyseQualiteService {
 
         this.executionRepository = executionRepository;
         this.notificationRepository = notificationRepository;
+        this.analyseQualiteRepository = analyseQualiteRepository;
+        this.rapportService = rapportService;
 
         this.sonarQubeService = sonarQubeService;
         this.mavenExecutionService = mavenExecutionService;
@@ -113,11 +120,12 @@ public class ExecutionAnalyseQualiteService {
 
     @Transactional
     public void supprimerExecution(Long id) {
+        ExecutionAnalyseQualite execution = obtenirExecutionParId(id);
 
-        if (!executionRepository.existsById(id)) {
-
+        if (execution.getStatut() == StatutExecution.EN_COURS) {
             throw new IllegalArgumentException(
-                    "Exécution d'analyse qualité introuvable.");
+                    "Une exécution en cours ne peut pas être supprimée."
+            );
         }
 
         /*
@@ -131,11 +139,19 @@ public class ExecutionAnalyseQualiteService {
         notificationRepository
                 .deleteByExecutionId(id);
 
+        rapportService.supprimerRapportParExecution(id);
+
+        analyseQualiteRepository
+                .findByExecutionAnalyseQualite_Id(id)
+                .ifPresent(analyseQualiteRepository::delete);
+
+        analyseQualiteRepository.flush();
+
         /*
          * Puis suppression de
          * ExecutionAnalyseQualite.
          */
-        executionRepository.deleteById(id);
+        executionRepository.delete(execution);
     }
 
     /*

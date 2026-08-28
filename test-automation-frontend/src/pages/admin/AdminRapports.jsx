@@ -14,15 +14,15 @@ import {
   X,
 } from 'lucide-react';
 import { useAlertDialog } from '../../components/AlertDialogContext';
-import { obtenirProjetsAdministration } from '../../services/adminProjetService';
+import { obtenirProjetsAdministration } from '../../services/admin/adminProjetService';
 import {
   enregistrerRapportTelecharge,
   obtenirRapportAdministration,
   obtenirRapportsAdministration,
   supprimerRapportAdministration,
   telechargerRapportAdministration,
-} from '../../services/adminRapportService';
-import { obtenirUtilisateurs } from '../../services/adminUtilisateurService';
+} from '../../services/admin/adminRapportService';
+import { obtenirUtilisateurs } from '../../services/admin/adminUtilisateurService';
 import './AdminRapports.css';
 
 const LIBELLES_TYPE = {

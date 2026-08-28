@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { effacerSession, obtenirJeton } from './authStorage';
+import { effacerSession, obtenirJeton } from '../auth/authStorage';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8080/api',

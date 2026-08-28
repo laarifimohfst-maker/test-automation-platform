@@ -1,16 +1,16 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Eye, Play, Trash2 } from 'lucide-react';
-import { obtenirProjetsUtilisateur } from '../../services/projetService';
-import { obtenirConfigurationsParProjet } from '../../services/configurationTestService';
+import { obtenirProjetsUtilisateur } from '../../services/developpeur/projetService';
+import { obtenirConfigurationsParProjet } from '../../services/developpeur/configurationTestService';
 import {
   lancerExecutionTest,
   obtenirExecutionsParProjet,
   supprimerExecutionTest,
-} from '../../services/executionTestService';
+} from '../../services/developpeur/executionTestService';
 import './Executions.css';
 import { useNavigate } from 'react-router-dom';
 import { useAlertDialog } from '../../components/AlertDialogContext';
-import { obtenirUtilisateurId } from '../../services/authStorage';
+import { obtenirUtilisateurId } from '../../services/auth/authStorage';
 
 function Executions() {
   const navigate = useNavigate();

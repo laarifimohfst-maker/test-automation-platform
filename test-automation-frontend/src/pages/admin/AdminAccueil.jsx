@@ -10,7 +10,7 @@ import {
   TriangleAlert,
   Users,
 } from 'lucide-react';
-import { obtenirDashboardAdministrateur } from '../../services/adminDashboardService';
+import { obtenirDashboardAdministrateur } from '../../services/admin/adminDashboardService';
 import './AdminAccueil.css';
 
 const formaterDate = (date) => {

@@ -6,7 +6,6 @@ import com.testplatform.test_automation_platform.entity.Projet;
 import com.testplatform.test_automation_platform.enums.StatutExecution;
 import com.testplatform.test_automation_platform.repository.ExecutionTestRepository;
 import com.testplatform.test_automation_platform.repository.NotificationRepository;
-import com.testplatform.test_automation_platform.repository.RapportRepository;
 import com.testplatform.test_automation_platform.repository.ResultatTestRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,7 +21,7 @@ public class ExecutionTestService {
     private final ResultatTestService resultatTestService;
     private final NotificationService notificationService;
     private final ResultatTestRepository resultatTestRepository;
-    private final RapportRepository rapportRepository;
+    private final RapportService rapportService;
     private final NotificationRepository notificationRepository;
 
     public ExecutionTestService(
@@ -31,7 +30,7 @@ public class ExecutionTestService {
             ResultatTestService resultatTestService,
             NotificationService notificationService,
             ResultatTestRepository resultatTestRepository,
-            RapportRepository rapportRepository,
+            RapportService rapportService,
             NotificationRepository notificationRepository) {
 
         this.executionTestRepository = executionTestRepository;
@@ -39,7 +38,7 @@ public class ExecutionTestService {
         this.resultatTestService = resultatTestService;
         this.notificationService = notificationService;
         this.resultatTestRepository = resultatTestRepository;
-        this.rapportRepository = rapportRepository;
+        this.rapportService = rapportService;
         this.notificationRepository = notificationRepository;
     }
 
@@ -105,16 +104,18 @@ public class ExecutionTestService {
 
     @Transactional
     public void supprimerExecution(Long id) {
+        ExecutionTest execution = obtenirExecutionParId(id);
 
-        if (!executionTestRepository.existsById(id)) {
+        if (execution.getStatut() == StatutExecution.EN_COURS) {
             throw new IllegalArgumentException(
-                    "Exécution des tests introuvable.");
+                    "Une exécution en cours ne peut pas être supprimée."
+            );
         }
 
         notificationRepository.deleteByExecutionId(id);
-        rapportRepository.deleteByExecutionId(id);
+        rapportService.supprimerRapportParExecution(id);
         resultatTestRepository.deleteByExecutionId(id);
-        executionTestRepository.deleteById(id);
+        executionTestRepository.delete(execution);
     }
 
     public ExecutionTest executerTests(Long id) throws Exception {

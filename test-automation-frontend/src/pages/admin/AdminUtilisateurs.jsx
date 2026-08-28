@@ -23,7 +23,7 @@ import {
   modifierUtilisateur,
   obtenirUtilisateurs,
   supprimerUtilisateur,
-} from '../../services/adminUtilisateurService';
+} from '../../services/admin/adminUtilisateurService';
 import './AdminAccueil.css';
 import './AdminUtilisateurs.css';
 

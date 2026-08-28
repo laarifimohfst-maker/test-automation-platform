@@ -13,10 +13,10 @@ import {
   marquerNotificationCommeLue,
   obtenirNotificationsUtilisateur,
   supprimerNotification,
-} from '../services/notificationService';
+} from '../services/commun/notificationService';
 
 import './NotificationBell.css';
-import { obtenirUtilisateurId } from '../services/authStorage';
+import { obtenirUtilisateurId } from '../services/auth/authStorage';
 
 const INTERVALLE_ACTUALISATION = 30000;
 

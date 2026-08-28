@@ -4,11 +4,11 @@ import {
   obtenirJeton,
   obtenirUtilisateurEnregistre,
   enregistrerUtilisateur,
-} from '../services/authStorage';
+} from '../services/auth/authStorage';
 import {
   connecter as connecterUtilisateur,
   deconnecter as deconnecterUtilisateur,
-} from '../services/authService';
+} from '../services/auth/authService';
 
 function AuthProvider({ children }) {
   const [utilisateur, setUtilisateur] = useState(() =>

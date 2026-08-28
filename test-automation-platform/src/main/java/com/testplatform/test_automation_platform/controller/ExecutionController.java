@@ -3,6 +3,7 @@ package com.testplatform.test_automation_platform.controller;
 import com.testplatform.test_automation_platform.entity.Execution;
 import com.testplatform.test_automation_platform.entity.Projet;
 import com.testplatform.test_automation_platform.enums.StatutExecution;
+import com.testplatform.test_automation_platform.enums.TypeExecution;
 import com.testplatform.test_automation_platform.service.ExecutionService;
 import com.testplatform.test_automation_platform.service.ProjetService;
 import org.springframework.http.ResponseEntity;
@@ -28,9 +29,20 @@ public class ExecutionController {
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<Execution>> obtenirToutesLesExecutions() {
+    public ResponseEntity<List<Execution>> obtenirToutesLesExecutions(
+            @RequestParam(required = false) String recherche,
+            @RequestParam(required = false) Long utilisateurId,
+            @RequestParam(required = false) Long projetId,
+            @RequestParam(required = false) StatutExecution statut,
+            @RequestParam(required = false) TypeExecution type) {
         return ResponseEntity.ok(
-                executionService.obtenirToutesLesExecutions()
+                executionService.rechercherExecutionsAdministration(
+                        recherche,
+                        utilisateurId,
+                        projetId,
+                        statut,
+                        type
+                )
         );
     }
 

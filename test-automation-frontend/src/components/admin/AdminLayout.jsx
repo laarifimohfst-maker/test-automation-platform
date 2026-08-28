@@ -16,12 +16,11 @@ const liensActifs = [
   { chemin: '/admin', libelle: 'Tableau de bord', icone: LayoutDashboard, fin: true },
   { chemin: '/admin/utilisateurs', libelle: 'Gestion utilisateurs', icone: Users },
   { chemin: '/admin/projets', libelle: 'Gestion projets', icone: Folder },
+  { chemin: '/admin/executions', libelle: 'Gestion exécutions', icone: Play },
   { chemin: '/admin/rapports', libelle: 'Gestion rapports', icone: FileText },
 ];
 
-const liensAVenir = [
-  { libelle: 'Gestion exécutions', icone: Play },
-];
+const liensAVenir = [];
 
 const informationsPages = {
   '/admin': {
@@ -39,6 +38,10 @@ const informationsPages = {
   '/admin/rapports': {
     titre: 'Gestion des rapports',
     description: 'Consultez, téléchargez et gérez les rapports générés.',
+  },
+  '/admin/executions': {
+    titre: 'Gestion des exécutions',
+    description: 'Consultez et gérez toutes les exécutions de la plateforme.',
   },
 };
 

@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
-import { inscrire } from '../../services/authService';
+import { inscrire } from '../../services/auth/authService';
 import illustration from '../../assets/logo.png';
 import './Login.css';
 

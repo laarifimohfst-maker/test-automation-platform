@@ -3,6 +3,8 @@ package com.testplatform.test_automation_platform;
 import com.testplatform.test_automation_platform.entity.Utilisateur;
 import com.testplatform.test_automation_platform.entity.ConfigurationTest;
 import com.testplatform.test_automation_platform.entity.ExecutionTest;
+import com.testplatform.test_automation_platform.entity.ExecutionAnalyseQualite;
+import com.testplatform.test_automation_platform.entity.AnalyseQualite;
 import com.testplatform.test_automation_platform.entity.Notification;
 import com.testplatform.test_automation_platform.entity.Projet;
 import com.testplatform.test_automation_platform.entity.Rapport;
@@ -10,6 +12,7 @@ import com.testplatform.test_automation_platform.entity.ResultatTest;
 import com.testplatform.test_automation_platform.enums.Role;
 import com.testplatform.test_automation_platform.enums.StatutExecution;
 import com.testplatform.test_automation_platform.enums.StatutProjet;
+import com.testplatform.test_automation_platform.enums.StatutQualityGate;
 import com.testplatform.test_automation_platform.enums.StatutTest;
 import com.testplatform.test_automation_platform.enums.TypeNotification;
 import com.testplatform.test_automation_platform.enums.TypeRapport;
@@ -17,7 +20,9 @@ import com.testplatform.test_automation_platform.enums.TypeSource;
 import com.testplatform.test_automation_platform.enums.TypeTest;
 import com.testplatform.test_automation_platform.repository.ConfigurationTestRepository;
 import com.testplatform.test_automation_platform.repository.ExecutionRepository;
+import com.testplatform.test_automation_platform.repository.ExecutionAnalyseQualiteRepository;
 import com.testplatform.test_automation_platform.repository.ExecutionTestRepository;
+import com.testplatform.test_automation_platform.repository.AnalyseQualiteRepository;
 import com.testplatform.test_automation_platform.repository.NotificationRepository;
 import com.testplatform.test_automation_platform.repository.ProjetRepository;
 import com.testplatform.test_automation_platform.repository.RapportRepository;
@@ -97,6 +102,12 @@ class SecurityIntegrationTests {
 
     @Autowired
     private ExecutionTestRepository executionTestRepository;
+
+    @Autowired
+    private ExecutionAnalyseQualiteRepository executionAnalyseQualiteRepository;
+
+    @Autowired
+    private AnalyseQualiteRepository analyseQualiteRepository;
 
     @Autowired
     private ExecutionRepository executionRepository;
@@ -557,6 +568,159 @@ class SecurityIntegrationTests {
         assertThat(resultatTestRepository.existsById(resultat.getId())).isFalse();
         assertThat(rapportRepository.existsById(rapport.getId())).isFalse();
         assertThat(notificationRepository.existsById(notification.getId())).isFalse();
+    }
+
+    @Test
+    void administrateurPeutFiltrerLesExecutionsGlobales()
+            throws Exception {
+        Projet projet = creerProjetTest(
+                "Projet exécution administration",
+                TypeSource.GITHUB
+        );
+        creerExecutionTest(projet);
+
+        ExecutionAnalyseQualite executionQualite =
+                new ExecutionAnalyseQualite();
+        executionQualite.setProjet(projet);
+        executionQualite.setStatut(StatutExecution.ECHOUEE);
+        executionQualite.setMessage("Quality Gate échoué");
+        executionQualite.setDateDebut(LocalDateTime.now());
+        executionQualite.setDateFin(LocalDateTime.now());
+        executionQualite = executionAnalyseQualiteRepository.save(
+                executionQualite
+        );
+
+        entityManager.flush();
+        entityManager.clear();
+
+        mockMvc.perform(get("/api/executions")
+                        .param("recherche", "Quality Gate")
+                        .param("utilisateurId", proprietaire.getId().toString())
+                        .param("projetId", projet.getId().toString())
+                        .param("statut", "ECHOUEE")
+                        .param("type", "ANALYSE_QUALITE")
+                        .with(jwtAdministrateur()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id")
+                        .value(executionQualite.getId()))
+                .andExpect(jsonPath("$[1]").doesNotExist())
+                .andExpect(jsonPath("$[0].projet.utilisateur.id")
+                        .value(proprietaire.getId()));
+    }
+
+    @Test
+    void developpeurNePeutPasConsulterLesExecutionsGlobales()
+            throws Exception {
+        mockMvc.perform(get("/api/executions")
+                        .with(jwtDeveloppeur(proprietaire.getEmail())))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.message").value("Accès interdit."));
+    }
+
+    @Test
+    void administrateurSupprimeExecutionTestEtDonneesLiees()
+            throws Exception {
+        Projet projet = creerProjetTest(
+                "Projet suppression exécution tests",
+                TypeSource.ARCHIVE_ZIP
+        );
+        ExecutionTest execution = creerExecutionTest(projet);
+        ResultatTest resultat = resultatTestRepository.save(
+                ResultatTest.builder()
+                        .executionTest(execution)
+                        .type(TypeTest.UNITAIRE)
+                        .nomTest("testSuppressionExecution")
+                        .statut(StatutTest.REUSSI)
+                        .build()
+        );
+        Rapport rapport = rapportRepository.save(Rapport.builder()
+                .nom("Rapport suppression exécution")
+                .type(TypeRapport.TESTS)
+                .execution(execution)
+                .dateGeneration(LocalDateTime.now())
+                .build());
+        Notification notification = notificationRepository.save(
+                Notification.builder()
+                        .message("Exécution de tests terminée")
+                        .type(TypeNotification.SUCCES)
+                        .utilisateur(proprietaire)
+                        .execution(execution)
+                        .dateEnvoi(LocalDateTime.now())
+                        .build()
+        );
+
+        entityManager.flush();
+        entityManager.clear();
+
+        mockMvc.perform(delete("/api/executions/{id}", execution.getId())
+                        .with(jwtAdministrateur()))
+                .andExpect(status().isNoContent());
+
+        assertThat(executionTestRepository.existsById(execution.getId()))
+                .isFalse();
+        assertThat(resultatTestRepository.existsById(resultat.getId()))
+                .isFalse();
+        assertThat(rapportRepository.existsById(rapport.getId())).isFalse();
+        assertThat(notificationRepository.existsById(notification.getId()))
+                .isFalse();
+    }
+
+    @Test
+    void administrateurSupprimeExecutionQualiteEtDonneesLiees()
+            throws Exception {
+        Projet projet = creerProjetTest(
+                "Projet suppression exécution qualité",
+                TypeSource.GITHUB
+        );
+        ExecutionAnalyseQualite execution = new ExecutionAnalyseQualite();
+        execution.setProjet(projet);
+        execution.setStatut(StatutExecution.ECHOUEE);
+        execution.setDateDebut(LocalDateTime.now());
+        execution.setDateFin(LocalDateTime.now());
+        execution = executionAnalyseQualiteRepository.save(execution);
+
+        AnalyseQualite analyse = analyseQualiteRepository.save(
+                AnalyseQualite.builder()
+                        .bugs(1)
+                        .vulnerabilites(0)
+                        .codeSmells(2)
+                        .coverage(40.0)
+                        .duplication(1.0)
+                        .qualityGateStatus(StatutQualityGate.ECHOUE)
+                        .dateAnalyse(LocalDateTime.now())
+                        .executionAnalyseQualite(execution)
+                        .build()
+        );
+        Rapport rapport = rapportRepository.save(Rapport.builder()
+                .nom("Rapport suppression qualité")
+                .type(TypeRapport.ANALYSE_QUALITE)
+                .execution(execution)
+                .dateGeneration(LocalDateTime.now())
+                .build());
+        Notification notification = notificationRepository.save(
+                Notification.builder()
+                        .message("Analyse qualité terminée")
+                        .type(TypeNotification.ECHEC)
+                        .utilisateur(proprietaire)
+                        .execution(execution)
+                        .dateEnvoi(LocalDateTime.now())
+                        .build()
+        );
+
+        entityManager.flush();
+        entityManager.clear();
+
+        mockMvc.perform(delete("/api/executions/{id}", execution.getId())
+                        .with(jwtAdministrateur()))
+                .andExpect(status().isNoContent());
+
+        assertThat(executionAnalyseQualiteRepository.existsById(execution.getId()))
+                .isFalse();
+        assertThat(analyseQualiteRepository.existsById(analyse.getId()))
+                .isFalse();
+        assertThat(rapportRepository.existsById(rapport.getId())).isFalse();
+        assertThat(notificationRepository.existsById(notification.getId()))
+                .isFalse();
     }
 
     @Test

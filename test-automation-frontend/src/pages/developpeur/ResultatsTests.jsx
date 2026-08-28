@@ -9,17 +9,17 @@ import {
   Download,
 } from 'lucide-react';
 
-import { obtenirProjetsUtilisateur } from '../../services/projetService';
-import { obtenirExecutionsParProjet } from '../../services/executionTestService';
-import { obtenirResultatsParExecution } from '../../services/resultatTestService';
+import { obtenirProjetsUtilisateur } from '../../services/developpeur/projetService';
+import { obtenirExecutionsParProjet } from '../../services/developpeur/executionTestService';
+import { obtenirResultatsParExecution } from '../../services/developpeur/resultatTestService';
 import {
   genererRapportTests,
   telechargerRapport,
   enregistrerFichierRapport,
-} from '../../services/rapportService';
+} from '../../services/developpeur/rapportService';
 
 import './ResultatsTests.css';
-import { obtenirUtilisateurId } from '../../services/authStorage';
+import { obtenirUtilisateurId } from '../../services/auth/authStorage';
 
 const RESULTATS_PAR_PAGE = 10;
 

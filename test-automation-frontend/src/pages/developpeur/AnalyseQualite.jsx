@@ -11,7 +11,7 @@ import {
   Download,
 } from 'lucide-react';
 
-import { obtenirProjetsUtilisateur } from '../../services/projetService';
+import { obtenirProjetsUtilisateur } from '../../services/developpeur/projetService';
 
 import {
   creerExecutionAnalyse,
@@ -20,17 +20,17 @@ import {
   obtenirAnalyseParExecution,
   supprimerAnalyseQualite,
   supprimerExecutionAnalyse,
-} from '../../services/analyseQualiteService';
+} from '../../services/developpeur/analyseQualiteService';
 
 import {
   genererRapportAnalyseQualite,
   telechargerRapport,
   enregistrerFichierRapport,
-} from '../../services/rapportService';
+} from '../../services/developpeur/rapportService';
 
 import './AnalyseQualite.css';
 import { useAlertDialog } from '../../components/AlertDialogContext';
-import { obtenirUtilisateurId } from '../../services/authStorage';
+import { obtenirUtilisateurId } from '../../services/auth/authStorage';
 
 function AnalyseQualite() {
   const { demanderConfirmation } = useAlertDialog();

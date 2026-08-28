@@ -1,4 +1,4 @@
-import api from './api';
+import api from '../commun/api';
 
 export const lancerExecutionTest = (projetId, configurationTestId) =>
   api.post('/executions-tests', null, {

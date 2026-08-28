@@ -1,4 +1,4 @@
-import api from './api';
+import api from '../commun/api';
 
 export const obtenirProjetsAdministration = async (filtres = {}) => {
   const params = Object.fromEntries(

@@ -1,4 +1,4 @@
-import api from './api';
+import api from '../commun/api';
 
 /*
  * Crée une nouvelle exécution d'analyse qualité

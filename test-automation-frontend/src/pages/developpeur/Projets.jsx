@@ -4,10 +4,10 @@ import {
   obtenirProjetsUtilisateur,
   supprimerProjet,
   modifierProjet,
-} from '../../services/projetService';
+} from '../../services/developpeur/projetService';
 import { useAlertDialog } from '../../components/AlertDialogContext';
 import './Projets.css';
-import { obtenirUtilisateurId } from '../../services/authStorage';
+import { obtenirUtilisateurId } from '../../services/auth/authStorage';
 
 const PROJETS_PAR_PAGE = 5;
 

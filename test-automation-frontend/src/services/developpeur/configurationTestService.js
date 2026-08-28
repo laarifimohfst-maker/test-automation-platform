@@ -1,4 +1,4 @@
-import api from './api';
+import api from '../commun/api';
 
 export const obtenirConfigurationsParProjet = (projetId) =>
   api.get(`/configurations-tests/projet/${projetId}`);

@@ -17,8 +17,8 @@ import {
   obtenirProjetAdministration,
   obtenirProjetsAdministration,
   supprimerProjetAdministration,
-} from '../../services/adminProjetService';
-import { obtenirUtilisateurs } from '../../services/adminUtilisateurService';
+} from '../../services/admin/adminProjetService';
+import { obtenirUtilisateurs } from '../../services/admin/adminUtilisateurService';
 import './AdminProjets.css';
 
 const LIBELLES_STATUT = {

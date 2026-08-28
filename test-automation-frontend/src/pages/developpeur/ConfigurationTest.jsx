@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react';
-import { obtenirProjetsUtilisateur } from '../../services/projetService';
+import { obtenirProjetsUtilisateur } from '../../services/developpeur/projetService';
 import {
   obtenirConfigurationsParProjet,
   configurerTests,
   supprimerConfiguration,
-} from '../../services/configurationTestService';
+} from '../../services/developpeur/configurationTestService';
 import { Trash2 } from 'lucide-react';
 import { useAlertDialog } from '../../components/AlertDialogContext';
 import './ConfigurationTest.css';
-import { obtenirUtilisateurId } from '../../services/authStorage';
+import { obtenirUtilisateurId } from '../../services/auth/authStorage';
 
 function ConfigurationTest() {
   const { demanderConfirmation, afficherAlerte } = useAlertDialog();

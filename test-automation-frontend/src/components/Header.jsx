@@ -1,10 +1,10 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useEffect, useState, useRef } from 'react';
 import { Upload, GitBranch, LogOut, X } from 'lucide-react';
-import { importerProjetZip, importerProjetGithub } from '../services/projetService';
+import { importerProjetZip, importerProjetGithub } from '../services/developpeur/projetService';
 import NotificationBell from './NotificationBell';
-import { obtenirUtilisateurParId } from '../services/utilisateurService';
-import { obtenirUtilisateurId } from '../services/authStorage';
+import { obtenirUtilisateurParId } from '../services/developpeur/utilisateurService';
+import { obtenirUtilisateurId } from '../services/auth/authStorage';
 import useAuth from '../hooks/useAuth';
 
 function Header() {
