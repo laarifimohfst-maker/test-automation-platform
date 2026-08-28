@@ -12,6 +12,8 @@ import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
 import AdminAccueil from './pages/admin/AdminAccueil';
 import AdminUtilisateurs from './pages/admin/AdminUtilisateurs';
+import AdminProjets from './pages/admin/AdminProjets';
+import AdminRapports from './pages/admin/AdminRapports';
 import AdminLayout from './components/admin/AdminLayout';
 import useAuth from './hooks/useAuth';
 import { AlertDialogProvider } from './components/AlertDialog';
@@ -98,6 +100,8 @@ function App() {
       >
         <Route index element={<AdminAccueil />} />
         <Route path="utilisateurs" element={<AdminUtilisateurs />} />
+        <Route path="projets" element={<AdminProjets />} />
+        <Route path="rapports" element={<AdminRapports />} />
       </Route>
       <Route
         path="/*"

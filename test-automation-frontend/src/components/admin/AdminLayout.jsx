@@ -15,12 +15,12 @@ import './AdminLayout.css';
 const liensActifs = [
   { chemin: '/admin', libelle: 'Tableau de bord', icone: LayoutDashboard, fin: true },
   { chemin: '/admin/utilisateurs', libelle: 'Gestion utilisateurs', icone: Users },
+  { chemin: '/admin/projets', libelle: 'Gestion projets', icone: Folder },
+  { chemin: '/admin/rapports', libelle: 'Gestion rapports', icone: FileText },
 ];
 
 const liensAVenir = [
-  { libelle: 'Gestion projets', icone: Folder },
   { libelle: 'Gestion exécutions', icone: Play },
-  { libelle: 'Gestion rapports', icone: FileText },
 ];
 
 const informationsPages = {
@@ -31,6 +31,14 @@ const informationsPages = {
   '/admin/utilisateurs': {
     titre: 'Gestion des utilisateurs',
     description: 'Créez et gérez les comptes enregistrés sur la plateforme.',
+  },
+  '/admin/projets': {
+    titre: 'Gestion des projets',
+    description: 'Consultez et gérez tous les projets de la plateforme.',
+  },
+  '/admin/rapports': {
+    titre: 'Gestion des rapports',
+    description: 'Consultez, téléchargez et gérez les rapports générés.',
   },
 };
 
